@@ -1,0 +1,62 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title> Face Landmark Test Demi</title>
+    
+    <!-- Dependencies (local) -->
+    <script src="tf.js"></script>
+    <script src=".\node_modules\@mediapipe\face_mesh\face_mesh.js"></script>
+    <script src="tfjs-core.js"></script>
+    <script src="face-landmarks-detection.js"></script>
+ 
+
+    <!-- Dependencies (cdn) 
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script> -->
+
+<style>
+  /* Style for the video element */
+  #video {
+      transform: scaleX(-1);  /*Mirror the video horizontally */
+      width: 100%;
+  }
+
+  body {
+    background: none;
+  }
+
+  .container {
+    background: rgb(228, 236, 244);
+    border-radius: 20px;
+    border: 2px solid rgb(119, 57, 255);
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 12px;
+  }
+
+#canvas {
+  transform: scale(-1, 1);
+}
+</style>
+
+</head>
+  <body>
+    <div class = "container">
+    <h1>Hello Extensions</h1>
+    <div> Test text hahaha idk</div>
+    <button id="requestPermission">Click to allow camera</button>
+    <video id = "video" autoplay style = "display:block;"></video>
+    <canvas id = "canvas" ></canvas>
+    </div>
+  </body>
+  <script type = "module" src="./script.js"></script>
+
+
+</html>
