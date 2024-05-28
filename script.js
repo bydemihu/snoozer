@@ -10,14 +10,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
 let video = document.getElementById("video");
 let button = document.getElementById('requestPermission');
 //let image2 = document.getElementById("testimage");
-var canvas = document.createElement("canvas");
+//var canvas = document.createElement("canvas");
 
-
+let canvas = document.getElementById("canvas")
 //let canvas = document.getElementById("canvas");
-canvas.setAttribute("width", window.innerWidth);
-canvas.setAttribute("height", window.innerHeight);
-canvas.setAttribute("style", "position: absolute; x:0; y:0; transform:scale(-1, 1);");
-document.body.appendChild(canvas);
+canvas.setAttribute("width", 240);
+canvas.setAttribute("height", 160);
+canvas.setAttribute("style", "transform:scale(-1, 1);");
+//canvas.setAttribute("style", "position: absolute; x:0; y:0; transform:scale(-1, 1);");
+//document.body.appendChild(canvas);
 var ctx = canvas.getContext("2d");
 ctx.fillStyle = "white";
 // ctx.translate(600, 0);
@@ -25,6 +26,8 @@ ctx.fillStyle = "white";
 
 // ctx.translate(0, 0);
 // ctx.scale(1, 1);
+
+canvas.onselectstart = function () { return false; }
 
 const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
 const detectorConfig = {
@@ -65,7 +68,7 @@ setTimeout( function() {  //global timeout of 1000milli
                         navigator.mozGetUserMedia;
     
         if (navigator.getUserMedia) {
-        navigator.getUserMedia({ audio: false, video: { width: 600, height: 400 } },
+        navigator.getUserMedia({ audio: false, video: { width: 240, height: 160 } },
             (stream) => {
                 console.log('cam media gotten');
     
@@ -154,14 +157,14 @@ const runDetection = async () =>{
         //ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // the video data is not flipped, so neither are the keypoints. do all calculations with the original data and only draw it flipped.
-        ctx.drawImage(video, 0, 0, 600, 400);
+        ctx.drawImage(video, 0, 0, 240, 160);
         console.log("videodrawn");
         if (faces.length > 0) {
             faces.forEach(face => {
                 face.keypoints.forEach(keypoint => {
                     const x = keypoint.x;
                     const y = keypoint.y;
-                    ctx.fillRect(x, y, 2, 2); // Draw a rectangle for each keypoint
+                    ctx.fillRect(x, y, 1, 1); // Draw a rectangle for each keypoint
                 });
             });
         }
