@@ -5,15 +5,14 @@
 // import './node_modules/@tensorflow/tfjs-backend-webgl/dist/tf-backend-webgl.js';
 // import * as faceLandmarksDetection from './node_modules/@tensorflow-models/face-landmarks-detection/dist/face-landmarks-detection.js';
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', function() {
 
-let video = document.getElementById("video");
-let button = document.getElementById('requestPermission');
+//let video = document.getElementById("video");
+//let button = document.getElementById('requestPermission');
 //let image2 = document.getElementById("testimage");
 //var canvas = document.createElement("canvas");
 
 let canvas = document.getElementById("canvas")
-//let canvas = document.getElementById("canvas");
 canvas.setAttribute("width", 240);
 canvas.setAttribute("height", 160);
 canvas.setAttribute("style", "transform:scale(-1, 1);");
@@ -27,7 +26,6 @@ ctx.fillStyle = "white";
 // ctx.translate(0, 0);
 // ctx.scale(1, 1);
 
-canvas.onselectstart = function () { return false; }
 
 const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
 const detectorConfig = {
@@ -53,82 +51,114 @@ solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh', //https://cdn
 // };
 
 
+const video = document.getElementById('video');
+if (navigator.mediaDevices.getUserMedia) {
+    //navigator.getUserMedia({ audio: false, video: { width: 240, height: 160 } })
+    navigator.mediaDevices.getUserMedia({ video: { width: 240, height: 160 } })
+    .then(function(stream) {
+    video.srcObject = stream;  // assign stream to video elem
+    video.addEventListener("loadeddata", () =>{  // wait for stream to load
+    runDetection();  // run detection and draw points
+    });
+        })
+        .catch(function(error) {
+          console.log("Something went wrong!");
+        });
+    }
 
 
 
+// setTimeout( function() {  //global timeout of 1000milli
 
-setTimeout( function() {  //global timeout of 1000milli
+//     //let button = document.getElementById('requestPermission');
+//     const video = document.getElementById('videoElement');
+  
+//     if (navigator.mediaDevices.getUserMedia) {
+//       console.log("got user media");
+//       navigator.mediaDevices.getUserMedia({ video: true })
+//         .then(function(stream) {
+//           video.srcObject = stream; // set stream to video content
+//           video.addEventListener("loadeddata", () =>{
+//             runDetection();  // temporary don't run detection
+//           });
+          
+                
+//         })
+//         .catch(function(error) {
+//           console.log("Something went wrong!");
+//         });
+//     }
 
-    let button = document.getElementById('requestPermission');
 
-    button.onclick = ()=>{
-        console.log('cam button clicked');
-        navigator.getUserMedia = navigator.getUserMedia ||
-                        navigator.webkitGetUserMedia ||
-                        navigator.mozGetUserMedia;
+
+//     // button.onclick = ()=>{
+//     //     console.log('cam button clicked');
+//     //     navigator.getUserMedia = navigator.getUserMedia ||
+//     //                     navigator.webkitGetUserMedia ||
+//     //                     navigator.mozGetUserMedia;
     
-        if (navigator.getUserMedia) {
-        navigator.getUserMedia({ audio: false, video: { width: 240, height: 160 } },
-            (stream) => {
-                console.log('cam media gotten');
+//     //     if (navigator.getUserMedia) {
+//     //     navigator.getUserMedia({ audio: false, video: { width: 240, height: 160 } },
+//     //         (stream) => {
+//     //             console.log('cam media gotten');
     
-                video.srcObject = stream;  // assign the webcam stream to the html video element
+//     //             video.srcObject = stream;  // assign the webcam stream to the html video element
     
-                video.addEventListener("loadeddata", () =>{  // only run the model stuff after vid loaded
-                    console.log('media loaded, detection run');
-                    runDetection();  // temporary don't run detection
+//     //             video.addEventListener("loadeddata", () =>{  // only run the model stuff after vid loaded
+//     //                 console.log('media loaded, detection run');
+//     //                 runDetection();  // temporary don't run detection
                     
-                });
-            },
-            (err) => {
-                console.error(`The following error occurred: ${err.name}`);
-            }
-        );
-        } else {
-            console.log("getUserMedia not supported");
-        }
-    };
+//     //             });
+//     //         },
+//     //         (err) => {
+//     //             console.error(`The following error occurred: ${err.name}`);
+//     //         }
+//     //     );
+//     //     } else {
+//     //         console.log("getUserMedia not supported");
+//     //     }
+//     // };
 
 
 
 
-// function btncheck(){
-// button = document.getElementById('requestPermission');
-// if (button == null) {
-//     setTimeout ( btncheck() , 100)
-//     }
-// }
+// // function btncheck(){
+// // button = document.getElementById('requestPermission');
+// // if (button == null) {
+// //     setTimeout ( btncheck() , 100)
+// //     }
+// // }
 
-// btncheck();
+// // btncheck();
 
-// button.onclick = ()=>{
-//     console.log('ya');
-//     navigator.getUserMedia = navigator.getUserMedia ||
-//                     navigator.webkitGetUserMedia ||
-//                     navigator.mozGetUserMedia;
+// // button.onclick = ()=>{
+// //     console.log('ya');
+// //     navigator.getUserMedia = navigator.getUserMedia ||
+// //                     navigator.webkitGetUserMedia ||
+// //                     navigator.mozGetUserMedia;
 
-//     if (navigator.getUserMedia) {
-//     navigator.getUserMedia({ audio: false, video: { width: 600, height: 400 } },
-//         (stream) => {
-//             console.log('success');
-//             video.srcObject = stream;
+// //     if (navigator.getUserMedia) {
+// //     navigator.getUserMedia({ audio: false, video: { width: 600, height: 400 } },
+// //         (stream) => {
+// //             console.log('success');
+// //             video.srcObject = stream;
 
-//             video.addEventListener("loadeddata", () =>{  // only run the model stuff after vid loaded
-//                 runDetection();
-//                 // draw the face keypoints
-//             });
+// //             video.addEventListener("loadeddata", () =>{  // only run the model stuff after vid loaded
+// //                 runDetection();
+// //                 // draw the face keypoints
+// //             });
 
-//         },
-//         (err) => {
-//             //console.error(`The following error occurred: ${err.name}`);
-//         }
-//     );
-//     } else {
-//         console.log("getUserMedia not supported");
-//     }
-// };
+// //         },
+// //         (err) => {
+// //             //console.error(`The following error occurred: ${err.name}`);
+// //         }
+// //     );
+// //     } else {
+// //         console.log("getUserMedia not supported");
+// //     }
+// // };
 
-}, 1000);
+// }, 1000);
 
 
 
