@@ -7,9 +7,10 @@
     
     <!-- Dependencies (local) -->
     <script src="tf.js"></script>
-    <script src=".\node_modules\@mediapipe\face_mesh\face_mesh.js"></script>
     <script src="tfjs-core.js"></script>
     <script src="face-landmarks-detection.js"></script>
+    <script src="face-detection.js"></script>
+ 
     <script src="facemesh.js"></script>
     <script src="tfjs-converter.js"></script>
  
@@ -23,8 +24,9 @@
 <style>
   /* Style for the video element */
   #video {
-      transform: scaleX(-1);  /*Mirror the video horizontally */
-      width: 100%;
+       /*Mirror the video horizontally */
+      width: 240px;
+      height: 160px;
   }
 
   body {
@@ -62,6 +64,8 @@
     <button id="requestPermission">  Click to allow camera</button>
     <button> <a href="options.html"> Go to Options </a> </button>
     <video id = "video" autoplay style = "display:none;"></video>
+    <img id = "img1" src = "testimg.png" style="display:none;">
+    </img>
 
     <div class = "placeholder">
     <canvas id = "canvas" ></canvas>
