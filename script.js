@@ -5,20 +5,33 @@
 // import './node_modules/@tensorflow/tfjs-backend-webgl';
 // import './node_modules/@mediapipe/face_mesh/face_mesh.js';
 
+// CREATE GLOBAL VARS
+let asleep = false;
+let minimized = false;
+
 // LOAD CONTENT
 document.addEventListener('DOMContentLoaded', async function () {
 
     // DECLARE VARIABLES
     let canvas = document.getElementById("canvas");
-    canvas.setAttribute("width", 240);
-    canvas.setAttribute("height", 160);
+    canvas.setAttribute("width", 360);
+    canvas.setAttribute("height", 240);
     canvas.setAttribute("style", "transform:scale(-1, 1);");
     var ctx = canvas.getContext("2d");
     ctx.fillStyle = "white";
     let img1 = document.getElementById("img1"); //tester image
     let showPoints = true;
-    let asleep = false;
     let blinkThreshold = 0.1;
+    const dragDiv = this.getElementById("dragdiv");
+    const exit = this.getElementById("exit");
+    const minimize = this.getElementById("minimize");
+
+    // COLORS
+    // let dark = color(47, 63, 91);
+    // let medium = color(194, 210, 255);
+    // let light = color(228, 236, 244);
+    // let accent = color(119, 57, 255);
+    // let gold = color(239, 201, 123);
 
     // CONFIGURE MODEL
     const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
@@ -35,11 +48,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // GET VIDEO DATA
     const video = document.getElementById('video');
-    video.setAttribute("width", 240);
-    video.setAttribute("height", 160);
+    video.setAttribute("width", 360);
+    video.setAttribute("height", 240);
     if (navigator.mediaDevices.getUserMedia) {
-        //navigator.getUserMedia({ audio: false, video: { width: 240, height: 160 } })
-        navigator.mediaDevices.getUserMedia({ video: { width: 240, height: 160 } })
+        //navigator.getUserMedia({ audio: false, video: { width: 360, height: 240 } })
+        navigator.mediaDevices.getUserMedia({ video: { width: 360, height: 240 } })
             .then(function (stream) {
                 video.srcObject = stream;  // assign stream to video elem
                 video.addEventListener("loadeddata", () => {  // wait for stream to load
@@ -100,9 +113,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // all
         console.log("detector created");
-        ctx.drawImage(video, 0, 0, 240, 160); //initial video
+        ctx.drawImage(video, 0, 0, 360, 240); //initial video
         let isProcessing = false;  // initial processing state
-        var first = true;
+        var first = true;  // initial detect run (used for logging the first face array)
 
         // establish eye keypoint variables
         var RO = { x: 0, y: 0 };
@@ -136,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // draw points
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(video, 0, 0, 240, 160);
+            ctx.drawImage(video, 0, 0, 360, 240);
 
             // detect faces
             faces.forEach(face => {
@@ -196,10 +209,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
 
             // perform distance calculations
-            const LW = distance(LI.x, LO.x, LI.y, LO.y);  
-            const LH = distance(LT.x, LB.x, LT.y, LB.y);  
-            const RW = distance(RI.x, RO.x, RI.y, RO.y);  
-            const RH = distance(RT.x, RB.x, RT.y, RB.y);      
+            const LW = distance(LI.x, LO.x, LI.y, LO.y);
+            const LH = distance(LT.x, LB.x, LT.y, LB.y);
+            const RW = distance(RI.x, RO.x, RI.y, RO.y);
+            const RH = distance(RT.x, RB.x, RT.y, RB.y);
 
             // if (LH / LW <= blinkThreshold) {
             //     console.log ("left blink");
@@ -209,12 +222,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             //     console.log ("right blink");
             // }
 
-            if (LH/LW <= blinkThreshold && RH/RW <= blinkThreshold){
+            if (LH / LW <= blinkThreshold && RH / RW <= blinkThreshold) {
                 asleep = true;
                 console.log("sleeping")
-                ctx.fillRect(0, 0, 20, 20);
             }
-            else{
+            else {
                 asleep = false;
             }
 
@@ -233,10 +245,76 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("points toggled");
     };
 
+    // RUN UI UPDATES
+    function runInterface() {
 
+    }
+
+    // OTHER FUNCTIONS AND CLASSES
     function distance(x1, x2, y1, y2) {
         const dx = x2 - x1;
         const dy = y2 - y1;
         return Math.sqrt(dx * dx + dy * dy);
+    }
+
+
+    setDrag(dragDiv)
+    function setDrag(elem) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        elem.onmousedown = startDrag;
+
+
+        function startDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = stopDrag;
+            document.onmousemove = dragElement;
+        }
+
+        function dragElement(e){
+            e = e || window.event;
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+
+            elem.style.top = (elem.offsetTop - pos2) + "px";
+            elem.style.left = (elem.offsetLeft - pos1) + "px";
+        }
+
+        function stopDrag(){
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+    exit.onclick = () => {
+        window.close();
+        console.log("exited");
+    }
+
+    minimize.onclick = () => {
+        console.log("minimize toggled");
+
+        if (minimized) {
+            document.getElementById("logo").style.display = "block";
+            document.getElementById("canvas").style.display = "block";
+            document.getElementById("sketch").style.display = "block";
+            document.getElementById("min").style.display = "block";
+            document.getElementById("unmin").style.display = "none";
+            minimized = false;
+        }
+        else{
+            document.getElementById("logo").style.display = "none";
+            document.getElementById("canvas").style.display = "none";
+            document.getElementById("sketch").style.display = "none";
+            document.getElementById("min").style.display = "none";
+            document.getElementById("unmin").style.display = "block";
+            minimized = true;
+        }
+        
     }
 });

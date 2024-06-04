@@ -3,14 +3,24 @@ console.log("sketch entered");
 
 function setup() {
     console.log("sketch set up");
-    c = createCanvas(400, 400);
-    c.parent("sketchdiv");
-    c.position(0, 0);
-    fill(100);
-    rect(50, 50,20, 200);
+    let parent = document.getElementById("sketch");
+    c = createCanvas(parent.offsetWidth, parent.offsetHeight);
+    c.parent("sketch");
+    //c.position(0, 0);
     //c.clear();
 }
 
 function draw() {
-    console.log("sketch looping");
+    //console.log("sketch looping");
+    background(100);
+    rect(0, 0, 50, 50);
+
+    if (typeof asleep !== 'undefined') {
+        if (asleep) {
+            rect(200, 0, 50, 50);
+            console.log("drew sleeping")
+        }
+    }
+
 }
+

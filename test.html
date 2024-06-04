@@ -1,77 +1,143 @@
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title> Face Landmark Test Demi</title>
-    
-    <!-- Dependencies (local) -->
-    <script src="tf.js"></script>
-    <script src="tfjs-core.js"></script>
-    <script src="face-landmarks-detection.js"></script>
-    <script src="face-detection.js"></script>
-    <script src="facemesh.js"></script>
-    <script src="tfjs-converter.js"></script>
- 
+  <title> Snoozer </title>
+  <link rel="icon" href="assets/icon.png">
 
-    <!-- Dependencies (cdn) 
+  <!-- Dependencies (local) -->
+  <script src="tf.js"></script>
+  <script src="tfjs-core.js"></script>
+  <script src="face-landmarks-detection.js"></script>
+  <script src="face-detection.js"></script>
+  <script src="facemesh.js"></script>
+  <script src="tfjs-converter.js"></script>
+  <script src="p5.js"></script>
+
+
+  <!-- Dependencies (cdn) 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script> -->
 
-<style>
-  /* Style for the video element */
-  #video {
-       /*Mirror the video horizontally */
+  <script type="module" src="./script.js"></script>
+  <style>
+    /* Style for the video element */
+    #video {
+      /*Mirror the video horizontally */
       width: 240px;
       height: 160px;
-  }
+    }
 
-  body {
-    background: none;
-  }
+    body {
+      background: none;
+    }
 
-  .container {
-    position:relative;
-    background: rgb(228, 236, 244);
-    border-radius: 20px;
-    border: 2px solid rgb(119, 57, 255);
-    width: 240px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 12px;
-  }
+    .container {
+      position: relative;
+      background: rgb(228, 236, 244);
+      border-radius: 20px;
+      border: 3px solid rgb(119, 57, 255);
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 12px;
+    }
 
-  .placeholder {
-    width:100%;
-    height:100%;
-  }
-  #canvas{
-    width: 100%;
-    height: 100%;
-  }
-</style>
+    #canvas {
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    #sketch {
+      width: 280px;
+      height: 280px;
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    #logo {
+      margin-top: 12px;
+      margin-bottom: 12px;
+      pointer-events: none;
+    }
+
+    #dragdiv {
+      background-color: red;
+      position: absolute;
+      z-index:10;
+      cursor: move;
+      width: 40px;
+      height: 60px;
+    }
+
+    .navbar {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      width: 100%;
+      height: 24px;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .grabbar{
+      height: 100%;
+      flex-grow: 1;
+    }
+
+    .iconwrapper{
+      height: 100%;
+      width: auto;
+      max-width: 30px;
+    }
+
+    .iconwrappersmaller{
+      height: 100%;
+      width: auto;
+      max-width: 26px;
+      max-height: 18px;
+    }
+
+    .icon{
+      height:100%;
+      width:100%;
+    }
+  </style>
 
 </head>
-  <body>
-    <div class = "container">
-    <h1>Hello Extensions</h1>
-    <div> Test text hahaha idk</div>
-    <button id="requestPermission">  Click to allow camera</button>
-    <button> <a href="options.html"> Go to Options </a> </button>
-    <video id = "video" autoplay style = "display:none;"></video>
-    <img id = "img1" src = "testimg.png" style="display:none;">
+
+<body>
+  
+
+  </div>
+  <div class="container">
+    <div class = "navbar">
+      <div class = "iconwrapper"> <a href="options.html"> <img class = "icon" src = "assets/settings.svg"></img> </a> </div>
+      <div class = "grabbar"></div>
+      <div class = "iconwrappersmaller" id = "minimize"> 
+        <img class = "icon" src = "assets/minimize.svg" id = "min"> </img>
+        <img class = "icon" src = "assets/unminimize.svg" id = "unmin" style = "display:none;"> </img> 
+      </div>
+      <div class = "iconwrappersmaller" id = "exit"> <img class = "icon" src = "assets/exit.svg"> </img> </div>
+    </div>
+    <img id="logo" src="./assets/snoozerlogo.svg" style="width:100%;">
     </img>
-
-    <div class = "placeholder">
-    <canvas id = "canvas" ></canvas>
+    <video id="video" autoplay style="display:none;"></video>
+    <canvas id="canvas"></canvas>
+    <div id="sketch" style = "display:none;">
+      <script src="./sketch.js"> </script>
     </div>
-    </div>
-  </body>
-  <script type = "module" src="./script.js"></script>
+  </div>
 
+  <div id = "dragdiv"></div>
+</body>
 
 </html>
