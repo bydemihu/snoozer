@@ -1,4 +1,5 @@
 
+
 console.log("sketch entered");
 
 function setup() {
@@ -15,11 +16,9 @@ function draw() {
     background(100);
     rect(0, 0, 50, 50);
 
-    if (typeof asleep !== 'undefined') {
-        if (asleep) {
-            rect(200, 0, 50, 50);
-            console.log("drew sleeping")
-        }
+    //console.log("draw run");
+    if(window.asleep){
+        //console.log("asleep p5");
     }
 
 }

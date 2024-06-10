@@ -6,28 +6,36 @@
 // import './node_modules/@mediapipe/face_mesh/face_mesh.js';
 
 // CREATE GLOBAL VARS
-let asleep = false;
+window.asleep = false;
 let minimized = false;
 let progress = 0;  // progress percentage
 let sleeptimer = 10;  // num of seconds, sort of rough
 let rate = 15 / sleeptimer;
 let active = true;
+let showPoints = true;
+let blinkThreshold = 0.16;  // adjust for blink sensitivity
+let snoozecount = 0;
+let quiet = false;
 
 // LOAD CONTENT
 document.addEventListener('DOMContentLoaded', async function () {
 
     // DECLARE VARIABLES
-    let canvas = document.getElementById("canvas");
+    const canvas = document.getElementById("canvas");
     canvas.setAttribute("width", 360);
     canvas.setAttribute("height", 240);
     canvas.setAttribute("style", "transform:scale(-1, 1);");
     var ctx = canvas.getContext("2d");
     ctx.fillStyle = "white";
-    let showPoints = true;
-    let blinkThreshold = 0.16;  // adjust for blink sensitivity
+    
     const exit = this.getElementById("exit");
     const minimize = this.getElementById("minimize");
     const container = this.getElementById("container");
+    const snoozebutton = this.getElementById("snoozebutton");
+    const quietbutton = this.getElementById("quietbutton");
+    const quietcolor = this.getElementById("quietcolor");
+    const snoozetext = this.getElementById("snoozecount");
+    const uicontainer = this.getElementById("uicontainer");
 
     // COLORS
     // let dark = color(47, 63, 91);
@@ -244,6 +252,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                         progress = 100;
                         console.log("snoozed!!!");
                         active = false;
+                        snoozecount ++;
+                        snoozetext.textContent = String(snoozecount);
                     }
                     else {
                         progress += rate;
@@ -348,7 +358,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (minimized) {
             document.getElementById("logo").style.display = "block";
             document.getElementById("canvas").style.display = "block";
-            document.getElementById("sketch").style.display = "block";
+            document.getElementById("uicontainer").style.display = "block";
             document.getElementById("min").style.display = "block";
             document.getElementById("unmin").style.display = "none";
             minimized = false;
@@ -356,11 +366,37 @@ document.addEventListener('DOMContentLoaded', async function () {
         else {
             document.getElementById("logo").style.display = "none";
             document.getElementById("canvas").style.display = "none";
-            document.getElementById("sketch").style.display = "none";
+            document.getElementById("uicontainer").style.display = "none";
             document.getElementById("min").style.display = "none";
             document.getElementById("unmin").style.display = "block";
             minimized = true;
         }
 
     }
+
+    snoozebutton.onclick = () => {
+        console.log("snooze clicked")
+        progress = 0;
+
+        if(!active){
+            active = true;
+        }
+    }
+
+    quietbutton.onclick = () => {
+        console.log("quiet toggled", !quiet)
+        if(quiet){
+            quiet = false;
+            quietcolor.style.backgroundColor = "rgb(194, 210, 255)";
+            quietbutton.style.left = "0";
+            quietbutton.style.right = "";
+        }
+        else{
+            quiet = true;
+            quietcolor.style.backgroundColor = "rgb(119, 57, 255)";
+            quietbutton.style.left = "";
+            quietbutton.style.right = "0";
+        }
+    }
+
 });
