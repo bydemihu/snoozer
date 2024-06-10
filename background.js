@@ -1,8 +1,12 @@
 // this ONLY runs in the extension!
 
-chrome.browserAction.onClicked.addListener(function(tab) {
-    chrome.windows.create({
-      // Just use the full URL if you need to open an external page
-      url: chrome.runtime.getURL("test.html")
-    });
-  });
+fetch(chrome.runtime.getURL('/test.html'))
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('inject-container').innerHTML = data;
+            // other code
+            // eg update injected elements,
+            // add event listeners or logic to connect to other parts of the app
+        }).catch(err => {
+            // handle error
+        });

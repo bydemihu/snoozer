@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
 let button = document.getElementById('requestPermission');
+let pop = document.getElementById('openPopup');
 
 button.onclick = ()=>{
     console.log('camera allowed via options');
@@ -22,5 +23,10 @@ button.onclick = ()=>{
         console.log("getUserMedia not supported");
     }
 };
+
+pop.onclick = () => {
+    console.log('popup opened');
+    chrome.windows.create({url: "test.html", type: "popup"});
+}
 
 });

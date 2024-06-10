@@ -3,14 +3,19 @@
   "name": "SnoozerAI",
   "description": "Satirical AI attention checker",
   "version": "1.0",
-  "content_scripts": [{
-    "matches": [
-      "<all_urls>"
-    ],
-    "js": ["script.js"]
-  }],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "script.js",
+        "background.js"
+      ]
+    }
+  ],
   "action": {
-    "default_popup": "test.html",
+    "default_popup": "options.html",
     "default_icon": "assets/icon.png"
   },
   "content_security_policy": {
@@ -19,5 +24,11 @@
   "options_page": "options.html",
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "web_accessible_resources": [{
+    "resources": [
+      "test.html", "script.js"
+    ],
+    "matches": ["<all_urls>"]
+  }]
 }

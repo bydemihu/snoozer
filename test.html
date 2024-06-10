@@ -37,7 +37,7 @@
     }
 
     .container {
-      position: relative;
+      position: absolute;
       background: rgb(228, 236, 244);
       border-radius: 20px;
       border: 3px solid rgb(119, 57, 255);
@@ -53,6 +53,8 @@
       width: 100%;
       height: 100%;
       cursor: pointer;
+      background-color: rgb(47, 63, 91);
+      border-radius: 8px;
     }
 
     #sketch {
@@ -68,15 +70,6 @@
       pointer-events: none;
     }
 
-    #dragdiv {
-      background-color: red;
-      position: absolute;
-      z-index:10;
-      cursor: move;
-      width: 40px;
-      height: 60px;
-    }
-
     .navbar {
       display: flex;
       flex-direction: row;
@@ -88,56 +81,111 @@
       align-items: center;
     }
 
-    .grabbar{
+    #containergrabber {
       height: 100%;
       flex-grow: 1;
+      z-index: 10;
+      cursor: grab;
     }
 
-    .iconwrapper{
+    .iconwrapper {
       height: 100%;
       width: auto;
       max-width: 30px;
     }
 
-    .iconwrappersmaller{
+    .iconwrappersmaller {
       height: 100%;
       width: auto;
       max-width: 26px;
       max-height: 18px;
     }
 
-    .icon{
-      height:100%;
-      width:100%;
+    .icon {
+      height: 100%;
+      width: 100%;
+    }
+
+    #progressbar {
+      height: auto;
+      width: 100%;
+      margin-top: 24px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    #base {
+      width: 100%;
+      height: 16px;
+      border-radius: 16px;
+      background-color: rgb(194, 210, 255);
+      position: absolute;
+    }
+
+    #progress {
+      width: 5%;
+      max-width: 100%;
+      height: 16px;
+      border-radius: 16px;
+      background-color: rgb(119, 57, 255);
+      position: absolute;
+      left: 0;
+    }
+
+    #progresscontainer {
+      position: absolute;
+      left: -6px;
+      right: 32px;
+    }
+
+    #progressicon {
+      position: absolute;
+      top: -12px;
+      width: 36px;
+      height: 36px;
+      left: 0%;
+      z-index: 1;
     }
   </style>
 
 </head>
 
 <body>
-  
-
-  </div>
-  <div class="container">
-    <div class = "navbar">
-      <div class = "iconwrapper"> <a href="options.html"> <img class = "icon" src = "assets/settings.svg"></img> </a> </div>
-      <div class = "grabbar"></div>
-      <div class = "iconwrappersmaller" id = "minimize"> 
-        <img class = "icon" src = "assets/minimize.svg" id = "min"> </img>
-        <img class = "icon" src = "assets/unminimize.svg" id = "unmin" style = "display:none;"> </img> 
+  <div class="container" id = "container">
+    <div class="navbar">
+      <div class="iconwrapper"> <a href="options.html"> <img class="icon" src="assets/settings.svg"></img> </a> </div>
+      <div id="containergrabber"></div>
+      <div class="iconwrappersmaller" id="minimize">
+        <img class="icon" src="assets/minimize.svg" id="min"> </img>
+        <img class="icon" src="assets/unminimize.svg" id="unmin" style="display:none;"> </img>
       </div>
-      <div class = "iconwrappersmaller" id = "exit"> <img class = "icon" src = "assets/exit.svg"> </img> </div>
+      <div class="iconwrappersmaller" id="exit"> <img class="icon" src="assets/exit.svg"> </img> </div>
     </div>
     <img id="logo" src="./assets/snoozerlogo.svg" style="width:100%;">
     </img>
     <video id="video" autoplay style="display:none;"></video>
-    <canvas id="canvas"></canvas>
-    <div id="sketch" style = "display:none;">
+
+    <canvas id="canvas">
+    </canvas>
+
+    <div id="progressbar">
+      <div id="base"></div>
+      <div id="progress"></div>
+      <div id = "progresscontainer">
+        <div id="progressicon">
+          <img id="sun" src="assets/sun.svg" style="display:block;">
+          <img id="moon" src="assets/moon.svg" style="display:none;">
+        </div>
+      </div>
+    </div>
+
+    <div id="sketch" style="display:none;">
       <script src="./sketch.js"> </script>
     </div>
-  </div>
 
-  <div id = "dragdiv"></div>
+
+
+  </div>
 </body>
 
 </html>

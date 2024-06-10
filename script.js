@@ -8,6 +8,10 @@
 // CREATE GLOBAL VARS
 let asleep = false;
 let minimized = false;
+let progress = 0;  // progress percentage
+let sleeptimer = 10;  // num of seconds, sort of rough
+let rate = 15 / sleeptimer;
+let active = true;
 
 // LOAD CONTENT
 document.addEventListener('DOMContentLoaded', async function () {
@@ -19,12 +23,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     canvas.setAttribute("style", "transform:scale(-1, 1);");
     var ctx = canvas.getContext("2d");
     ctx.fillStyle = "white";
-    let img1 = document.getElementById("img1"); //tester image
     let showPoints = true;
-    let blinkThreshold = 0.1;
-    const dragDiv = this.getElementById("dragdiv");
+    let blinkThreshold = 0.16;  // adjust for blink sensitivity
     const exit = this.getElementById("exit");
     const minimize = this.getElementById("minimize");
+    const container = this.getElementById("container");
 
     // COLORS
     // let dark = color(47, 63, 91);
@@ -128,8 +131,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         var LB = { x: 0, y: 0 };
         var LI = { x: 0, y: 0 };
 
-        const detect = async () => {  // runs every frame
+        const detect = async () => {  // runs every frame while active
             //console.log("detect called");
+
             if (isProcessing) return;
             isProcessing = true;
 
@@ -230,6 +234,37 @@ document.addEventListener('DOMContentLoaded', async function () {
                 asleep = false;
             }
 
+            if (active) {
+                // perform all sleep-based actions
+                if (asleep) {
+                    document.getElementById("sun").style.display = "none";
+                    document.getElementById("moon").style.display = "block";
+
+                    if (progress > 100 - rate) {
+                        progress = 100;
+                        console.log("snoozed!!!");
+                        active = false;
+                    }
+                    else {
+                        progress += rate;
+                    }
+                }
+
+                else {
+                    document.getElementById("sun").style.display = "block";
+                    document.getElementById("moon").style.display = "none";
+
+                    if (progress >= 1) {
+                        progress += -1;  // save the value in progress
+                    }
+                }
+
+                // update progress
+                const clamped = map(progress, 0, 100, 8, 98);
+                document.getElementById("progress").style.width = clamped + "%"; // can't exceed 100? or 100 progress has to equal 95 width
+                document.getElementById("progressicon").style.left = progress + "%";
+            }
+
             // finish frame calculations, rerun
             isProcessing = false;
             requestAnimationFrame(detect);
@@ -257,12 +292,23 @@ document.addEventListener('DOMContentLoaded', async function () {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
+    function map(num, inMin, inMax, outMin, outMax){ 
+        num = ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+        return num;
+    }
 
-    setDrag(dragDiv)
+    setDrag(container)
     function setDrag(elem) {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        elem.onmousedown = startDrag;
 
+        if (document.getElementById(elem.id + "grabber")) {
+            document.getElementById(elem.id + "grabber").onmousedown = startDrag;
+            console.log("dragged grabber")
+        }
+        else {
+            elem.onmousedown = startDrag;
+            console.log("dragged element")
+        }
 
         function startDrag(e) {
             e = e || window.event;
@@ -273,7 +319,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.onmousemove = dragElement;
         }
 
-        function dragElement(e){
+        function dragElement(e) {
             e = e || window.event;
             e.preventDefault();
             pos1 = pos3 - e.clientX;
@@ -285,7 +331,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             elem.style.left = (elem.offsetLeft - pos1) + "px";
         }
 
-        function stopDrag(){
+        function stopDrag() {
             document.onmouseup = null;
             document.onmousemove = null;
         }
@@ -307,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.getElementById("unmin").style.display = "none";
             minimized = false;
         }
-        else{
+        else {
             document.getElementById("logo").style.display = "none";
             document.getElementById("canvas").style.display = "none";
             document.getElementById("sketch").style.display = "none";
@@ -315,6 +361,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.getElementById("unmin").style.display = "block";
             minimized = true;
         }
-        
+
     }
 });
