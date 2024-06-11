@@ -1,12 +1,12 @@
 // this ONLY runs in the extension!
+// background.js injects the injector
 
-fetch(chrome.runtime.getURL('/test.html'))
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('inject-container').innerHTML = data;
-            // other code
-            // eg update injected elements,
-            // add event listeners or logic to connect to other parts of the app
-        }).catch(err => {
-            // handle error
-        });
+console.log("background.js entered")
+
+chrome.action.onClicked.addListener((tab) => {
+    console.log("injector.js run")
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['injector.js']
+    });
+  });

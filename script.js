@@ -16,6 +16,7 @@ let showPoints = true;
 let blinkThreshold = 0.16;  // adjust for blink sensitivity
 let snoozecount = 0;
 let quiet = false;
+let jump;
 
 // LOAD CONTENT
 document.addEventListener('DOMContentLoaded', async function () {
@@ -36,6 +37,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     const quietcolor = this.getElementById("quietcolor");
     const snoozetext = this.getElementById("snoozecount");
     const uicontainer = this.getElementById("uicontainer");
+
+    var images = [
+        'assets/incredible.png',
+        'assets/rock.jpg',
+        'assets/emoji.jpg',
+    ];
+
+    var sounds = [
+        'assets/airhorn.wav',
+        'assets/boom.mp3',
+        'assets/error.mp3',
+        'assets/alarm.webm',
+    ];
 
     // COLORS
     // let dark = color(47, 63, 91);
@@ -61,10 +75,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     const video = document.getElementById('video');
     video.setAttribute("width", 360);
     video.setAttribute("height", 240);
+
+
     if (navigator.mediaDevices.getUserMedia) {
         //navigator.getUserMedia({ audio: false, video: { width: 360, height: 240 } })
         navigator.mediaDevices.getUserMedia({ video: { width: 360, height: 240 } })
-            .then(function (stream) {
+            .then((stream) => {
+                console.log('Video access granted.');
                 video.srcObject = stream;  // assign stream to video elem
                 video.addEventListener("loadeddata", () => {  // wait for stream to load
                     runDetection();  // run detection and draw points
@@ -74,6 +91,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 console.log("Something went wrong!");
             });
     }
+
+    
 
 
 
@@ -254,6 +273,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                         active = false;
                         snoozecount ++;
                         snoozetext.textContent = String(snoozecount);
+                        jumpscare();
                     }
                     else {
                         progress += rate;
@@ -284,18 +304,36 @@ document.addEventListener('DOMContentLoaded', async function () {
         detect(); // initial detect
     }
 
-    // SET POINTS TOGGLE
+    // OTHER FUNCTIONS AND CLASSES
+    function jumpscare() {
+        // generate random
+        var rand = Math.floor(Math.random() * Math.min(images.length, sounds.length));
+        jump = document.createElement('div');
+
+        jump.style.backgroundImage = "url('" + images[rand] + "')";
+        jump.style.backgroundSize = "fill";
+        jump.style.backgroundRepeat = "no-repeat";
+        jump.style.width = "100vw";
+        jump.style.height = "100vh";
+        jump.style.position = "absolute";
+        jump.style.zIndex = 99;
+        jump.id = "jumpscare";
+        
+        document.body.insertBefore(jump, container);
+        //document.body.appendChild(jump);
+
+        if(!quiet){
+            var sound = new Audio(sounds[rand]);
+            sound.play();
+        }
+        
+    };
+
     canvas.onclick = () => {
         showPoints = !showPoints;
         console.log("points toggled");
     };
 
-    // RUN UI UPDATES
-    function runInterface() {
-
-    }
-
-    // OTHER FUNCTIONS AND CLASSES
     function distance(x1, x2, y1, y2) {
         const dx = x2 - x1;
         const dy = y2 - y1;
@@ -307,7 +345,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return num;
     }
 
-    setDrag(container)
+    //setDrag(container)
     function setDrag(elem) {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
@@ -380,6 +418,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         if(!active){
             active = true;
+            jump.parentNode.removeChild(jump);
         }
     }
 

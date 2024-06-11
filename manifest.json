@@ -8,27 +8,33 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": [
-        "script.js",
-        "background.js"
+      "js": ["injector.js", "options.js"
       ]
     }
   ],
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
   "action": {
-    "default_popup": "options.html",
+    "default_popup": "test.html",
     "default_icon": "assets/icon.png"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' ; object-src 'self';"
   },
   "options_page": "options.html",
-  "background": {
-    "service_worker": "background.js"
-  },
   "web_accessible_resources": [{
     "resources": [
       "test.html", "script.js"
     ],
     "matches": ["<all_urls>"]
-  }]
+  }],
+  "background": {
+    "service_worker": "background.js"
+  }
 }

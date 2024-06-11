@@ -14,8 +14,6 @@
   <script src="face-detection.js"></script>
   <script src="facemesh.js"></script>
   <script src="tfjs-converter.js"></script>
-  <script src="p5.js"></script>
-
 
   <!-- Dependencies (cdn) 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -24,6 +22,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script> -->
 
   <script type="module" src="./script.js"></script>
+
+  <meta http-equiv="Permissions-Policy" content="camera=*">
+
+
 
   <style>
     @font-face {
@@ -39,7 +41,16 @@
 
     body {
       background: none;
-      font-family: quicksand;
+      margin: 0;
+      pointer-events: auto;
+      overflow: hidden;
+    }
+
+    .no-select {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
     }
 
     .container {
@@ -53,6 +64,9 @@
       justify-content: flex-start;
       align-items: center;
       padding: 12px;
+      z-index: 100000;
+      font-family: quicksand;
+      pointer-events: auto;
     }
 
     .center {
@@ -179,17 +193,22 @@
 <body>
   <div class="container" id="container">
     <div class="navbar">
-      <div class="iconwrapper"> <a href="options.html"> <img class="icon" src="assets/settings.svg"></img> </a> </div>
+      <div class="iconwrapper" class="no-select"> <a href="options.html"> <img class="icon" src="assets/settings.svg"
+            draggable="false" class="no-select"></img> </a> </div>
       <div id="containergrabber"></div>
-      <div class="iconwrappersmaller" id="minimize">
-        <img class="icon" src="assets/minimize.svg" id="min"> </img>
-        <img class="icon" src="assets/unminimize.svg" id="unmin" style="display:none;"> </img>
+      <div class="iconwrappersmaller" id="minimize" class="no-select">
+        <img class="icon" src="assets/minimize.svg" id="min" draggable="false" class="no-select"> </img>
+        <img class="icon" src="assets/unminimize.svg" id="unmin" style="display:none;" draggable="false"
+          class="no-select"> </img>
       </div>
-      <div class="iconwrappersmaller" id="exit"> <img class="icon" src="assets/exit.svg"> </img> </div>
+      <div class="iconwrappersmaller" id="exit" class="no-select">
+        <img class="icon" src="assets/exit.svg" draggable="false"
+          class="no-select"> </img>
+      </div>
     </div>
-    <img id="logo" src="./assets/snoozerlogo.svg" style="width:100%;">
+    <img id="logo" src="./assets/snoozerlogo.svg" style="width:100%;" draggable="false" class="no-select">
     </img>
-    <video id="video" autoplay style="display:none;"></video>
+    <video id="video" autoplay playsinline style="display:none;"></video>
 
     <canvas id="canvas">
     </canvas>
@@ -199,8 +218,8 @@
       <div id="progress"></div>
       <div id="progresscontainer">
         <div id="progressicon">
-          <img id="sun" src="assets/sun.svg" style="display:block;">
-          <img id="moon" src="assets/moon.svg" style="display:none;">
+          <img id="sun" src="assets/sun.svg" style="display:block;" draggable="false" class="no-select">
+          <img id="moon" src="assets/moon.svg" style="display:none;" draggable="false" class="no-select">
         </div>
       </div>
     </div>
@@ -210,39 +229,36 @@
         <div class="round" style="background-color: rgb(119, 57, 255); bottom: 0">
         </div>
         <div id="snoozebutton" class="round" style="background-color: rgb(229, 196, 130); top: 0; font-size: 20px;">
-          I'M AWAKE!
+          <p class="no-select">I'M AWAKE!</p>
+
         </div>
 
       </div>
       <div id="halfandhalf" style="display: flex; flex-direction: row; width: 100%; align-items: stretch;">
         <div class="center" style="font-size: 20px;">
-          <div>
+          <div class="no-select">
             SNOOZES
           </div>
-          <div id="snoozecount" style="font-size: 40px; color: rgb(119, 57, 255)">
+          <div id="snoozecount" style="font-size: 40px; color: rgb(119, 57, 255)" class="no-select">
             0
           </div>
         </div>
         <div class="center" style="font-size: 20px;">
-          <div>
+          <div class="no-select">
             QUIET
           </div>
 
-          <div style = "height: 42px; width: 100%; position: relative; width: 80px; padding-top: 6px;">
-            <div id = "quietcolor" style="background-color: rgb(194, 210, 255); height: 100%; width: 100%; border-radius: 36px;">
-              <div id="quietbutton" class = "round" style="background-color: rgb(229, 196, 130); left: 0; width: 36px; height: 36px; margin: 3px;">
+          <div style="height: 42px; width: 100%; position: relative; width: 80px; padding-top: 6px;">
+            <div id="quietcolor"
+              style="background-color: rgb(194, 210, 255); height: 100%; width: 100%; border-radius: 36px;">
+              <div id="quietbutton" class="round"
+                style="background-color: rgb(229, 196, 130); left: 0; width: 36px; height: 36px; margin: 3px; cursor: pointer">
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <div id="sketch" style="display:none;">
-      <script src="./sketch.js"> </script>
-    </div>
-
-
 
   </div>
 </body>
