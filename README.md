@@ -1,4 +1,5 @@
-![snoozerlogo](https://github.com/demihu1116/snoozer/assets/114568669/d048a0ef-56aa-48ca-9861-40b45c233587)
+![snoozerlogoobject](https://github.com/demihu1116/snoozer/assets/114568669/a8d25c17-98fa-4d97-81d3-eef61ed7a575)
+
 ### Snoozer: AI face-tracking productivity tool!
 Snoozer uses your webcam to capture your face and the Tensorflow.js face landmark detection model to detect when you're dozing off. It's easy to install and use: simply add Snoozer to Chrome [here], and it'll create a minimizable popup that will keep you on your toes as you use the web.
 
