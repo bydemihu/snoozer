@@ -1,5 +1,5 @@
 // this ONLY runs in the extension!
-// background.js injects the injector
+// background.js injects the injector.js script!
 
 console.log("background.js entered")
 

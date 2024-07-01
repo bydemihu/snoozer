@@ -8,8 +8,7 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": ["injector.js", "options.js"
-      ]
+      "js": ["injector.js"]
     }
   ],
   "permissions": [
@@ -21,7 +20,7 @@
     "*://*/*"
   ],
   "action": {
-    "default_popup": "test.html",
+    "default_popup": "snoozer.html",
     "default_icon": "assets/icon.png"
   },
   "content_security_policy": {
@@ -30,7 +29,7 @@
   "options_page": "options.html",
   "web_accessible_resources": [{
     "resources": [
-      "test.html", "script.js"
+      "snoozer.html", "script.js", "assets/*"
     ],
     "matches": ["<all_urls>"]
   }],

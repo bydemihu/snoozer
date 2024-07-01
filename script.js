@@ -273,7 +273,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                         active = false;
                         snoozecount ++;
                         snoozetext.textContent = String(snoozecount);
-                        jumpscare();
+
+                        window.parent.postMessage({ action: 'jumpscare' }, '*');  //send jumpscare to parent
+                        //jumpscare();
                     }
                     else {
                         progress += rate;
@@ -305,29 +307,30 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // OTHER FUNCTIONS AND CLASSES
-    function jumpscare() {
-        // generate random
-        var rand = Math.floor(Math.random() * Math.min(images.length, sounds.length));
-        jump = document.createElement('div');
+    // function jumpscare() {
+    //     // generate random
+    //     var rand = Math.floor(Math.random() * Math.min(images.length, sounds.length));
+    //     jump = document.createElement('div');
 
-        jump.style.backgroundImage = "url('" + images[rand] + "')";
-        jump.style.backgroundSize = "fill";
-        jump.style.backgroundRepeat = "no-repeat";
-        jump.style.width = "100vw";
-        jump.style.height = "100vh";
-        jump.style.position = "absolute";
-        jump.style.zIndex = 99;
-        jump.id = "jumpscare";
+    //     jump.style.backgroundImage = `url("${chrome.runtime.getURL(images[rand])}")`;
+    //     //jump.style.backgroundImage = "url('" + images[rand] + "')";
+    //     jump.style.backgroundSize = "fill";
+    //     jump.style.backgroundRepeat = "no-repeat";
+    //     jump.style.width = "100vw";
+    //     jump.style.height = "100vh";
+    //     jump.style.position = "absolute";
+    //     jump.style.zIndex = 9999999;
+    //     jump.id = "jumpscare";
         
-        document.body.insertBefore(jump, container);
-        //document.body.appendChild(jump);
+    //     document.body.insertBefore(jump, container);
+    //     //document.body.appendChild(jump);
 
-        if(!quiet){
-            var sound = new Audio(sounds[rand]);
-            sound.play();
-        }
+    //     if(!quiet){
+    //         var sound = new Audio(sounds[rand]);
+    //         sound.play();
+    //     }
         
-    };
+    // };
 
     canvas.onclick = () => {
         showPoints = !showPoints;
@@ -345,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return num;
     }
 
-    //setDrag(container)
+    //setDrag(container)  (outdated, drag is now performed in injector.js)
     function setDrag(elem) {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
@@ -393,6 +396,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     minimize.onclick = () => {
         console.log("minimize toggled");
 
+        window.parent.postMessage({ action: 'minimizetoggle' }, '*');
+
         if (minimized) {
             document.getElementById("logo").style.display = "block";
             document.getElementById("canvas").style.display = "block";
@@ -416,14 +421,21 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("snooze clicked")
         progress = 0;
 
+
+        // reset state
         if(!active){
             active = true;
-            jump.parentNode.removeChild(jump);
+            //jump.parentNode.removeChild(jump);
+
+            window.parent.postMessage({ action: 'reset' }, '*');  //send reset to parent
+            //window.parent.postMessage({ asleep: asleep }, '*');
         }
     }
 
     quietbutton.onclick = () => {
         console.log("quiet toggled", !quiet)
+        window.parent.postMessage({ action: 'quiettoggle' }, '*');  //send jumpscare to parent
+
         if(quiet){
             quiet = false;
             quietcolor.style.backgroundColor = "rgb(194, 210, 255)";
