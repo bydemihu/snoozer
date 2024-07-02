@@ -1,3 +1,6 @@
+// THIS IS THE MAIN SNOOZER SCRIPT!
+
+
 // // Make sure DOM content loaded, then run script
 // import * as faceLandmarksDetection from './node_modules/@tensorflow-models/face-landmarks-detection';
 // import './node_modules/@tensorflow/tfjs-core';
@@ -31,25 +34,24 @@ document.addEventListener('DOMContentLoaded', async function () {
     
     const exit = this.getElementById("exit");
     const minimize = this.getElementById("minimize");
-    const container = this.getElementById("container");
+    //const container = this.getElementById("container");
     const snoozebutton = this.getElementById("snoozebutton");
     const quietbutton = this.getElementById("quietbutton");
     const quietcolor = this.getElementById("quietcolor");
     const snoozetext = this.getElementById("snoozecount");
-    const uicontainer = this.getElementById("uicontainer");
 
-    var images = [
-        'assets/incredible.png',
-        'assets/rock.jpg',
-        'assets/emoji.jpg',
-    ];
+    // var images = [
+    //     'assets/incredible.png',
+    //     'assets/rock.jpg',
+    //     'assets/emoji.jpg',
+    // ];
 
-    var sounds = [
-        'assets/airhorn.wav',
-        'assets/boom.mp3',
-        'assets/error.mp3',
-        'assets/alarm.webm',
-    ];
+    // var sounds = [
+    //     'assets/airhorn.wav',
+    //     'assets/boom.mp3',
+    //     'assets/error.mp3',
+    //     'assets/alarm.webm',
+    // ];
 
     // COLORS
     // let dark = color(47, 63, 91);
@@ -91,9 +93,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 console.log("Something went wrong!");
             });
     }
-
-    
-
 
 
     // RUN DETECTION (FACEMESH ONLY)

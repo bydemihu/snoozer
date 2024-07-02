@@ -1,23 +1,75 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title> Snoozer Options</title>
+    <title> Snoozer Options </title>
+    <link rel="icon" href="assets/icon.png">
+    <link rel="stylesheet" href="styles.css">
 
     <script src="options.js"></script>
 
-    <style>
-        body{
-            width: 280px;
-            height: auto;
-        }
-    </style>
 </head>
 
 <body>
-<button id="requestPermission">Allow Camera</button>
-<button id="openPopup">openPopup</button>
+
+    <body>
+        <div class="container" id="container" style="width:280px; position: static; margin-top: 2%;">
+
+            <div class="navbar">
+                <div class="iconwrappersmaller" class="no-select"> <a href="popup.html"> <img class="icon"
+                            src="assets/back.svg" draggable="false" class="no-select"></img> </a> </div>
+                <div id="containergrabber"></div>
+
+                <div class="iconwrapper" id="snoozesite" class="no-select">
+                    <a href="https://demi.hu/" target="_blank">
+                        <img class="icon" src="assets/icon_light.svg" draggable="false" class="no-select"> </img>
+                    </a>
+                </div>
+            </div>
+
+            <img id="logo" src="./assets/snoozerlogo.svg" style="width:100%;" draggable="false" class="no-select">
+            </img>
+
+            <div class="center" style="font-size: 30px; font-weight: 400; color: rgb(119, 57, 255); margin-top: -10%;">
+                OPTIONS
+            </div>
+
+            <div id="uicontainer" class="center" style="width: 100%; color:rgb(47, 63, 91); cursor: default; gap: 12px;">
+
+                <div style="height: 48px; position: relative; width: 100%; cursor: pointer;">
+                    <div class="round" style="background-color: rgb(119, 57, 255); bottom: 0">
+                    </div>
+                    <div id="snoozersitebutton" class="round"
+                        style="background-color: rgb(229, 196, 130); top: 0; font-size: 20px;">
+                        <a href="https://demi.hu/" target="_blank"  style="text-decoration:none; color: inherit; ">
+                            <p class="no-select">ABOUT</p>
+                        </a>
+                    </div>
+
+                </div>
+
+
+                <div style="height: 42px; width: 100%; position: relative; width: 80px; ">
+                    <div id="oncolor"
+                        style="background-color: rgb(194, 210, 255); height: 100%; width: 100%; border-radius: 36px;">
+                        <div id="onbutton" class="round"
+                            style="background-color: rgb(229, 196, 130); left: 0; width: 36px; height: 36px; margin: 3px; cursor: pointer">
+                        </div>
+                    </div>
+                </div>
+            
+
+        </div>
+
+
+        </div>
+
+    </body>
+
+    <button id="requestPermission">Allow Camera</button>
+    <button id="openPopup">openPopup</button>
 
 </body>
 

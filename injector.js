@@ -1,4 +1,4 @@
-// this adds test.html snoozer interface to the webpage. it gets called by background.js
+// this adds test.html snoozer interface to the webpage. it gets called by background.js!
 
 
 let iframecontainer = document.createElement('div');
@@ -7,6 +7,7 @@ let iframegrabber = document.createElement('div');
 let iframeexit = document.createElement('div');
 let quiet = false;
 let minimized = false;
+let jump;
 
 var images = [
     'assets/incredible.png',
@@ -67,7 +68,6 @@ iframecontainer.appendChild(iframegrabber);
 iframecontainer.appendChild(iframeexit);
 iframecontainer.appendChild(iframe);
 
-
 iframeexit.onclick = () => {
     iframecontainer.remove();
 
@@ -75,7 +75,6 @@ iframeexit.onclick = () => {
         jump.remove();
     }
 }
-
 
 
 setDrag(iframecontainer)
@@ -138,7 +137,6 @@ function jumpscare() {
     //document.body.insertBefore(jump, iframecontainer);
     document.body.appendChild(jump);
 
-
     console.log("inject made a jumpscare");
 
     if(!quiet){
@@ -176,7 +174,6 @@ window.addEventListener('message', function(event) {
         else{
             iframe.style.height = "560px";
         }
-
 
         minimized = !minimized;
         

@@ -8,7 +8,10 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": ["injector.js"]
+      "js": [
+        "injector.js",
+        "popup.js"
+      ]
     }
   ],
   "permissions": [
@@ -20,19 +23,25 @@
     "*://*/*"
   ],
   "action": {
-    "default_popup": "snoozer.html",
+    "default_popup": "popup.html",
     "default_icon": "assets/icon.png"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' ; object-src 'self';"
   },
   "options_page": "options.html",
-  "web_accessible_resources": [{
-    "resources": [
-      "snoozer.html", "script.js", "assets/*"
-    ],
-    "matches": ["<all_urls>"]
-  }],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "snoozer.html",
+        "script.js",
+        "assets/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "background": {
     "service_worker": "background.js"
   }
