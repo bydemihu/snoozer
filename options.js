@@ -5,5 +5,13 @@
 console.log("options.js entered");
 
 document.addEventListener('DOMContentLoaded', (event) => {
+    let backbutton = document.getElementById("backbutton");
 
+    backbutton.onclick = () => {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.close();
+        }
+    }
 });

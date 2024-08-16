@@ -17,7 +17,7 @@
     "default_icon": "assets/icon.png"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self' ; object-src 'self';"
+    "extension_pages": "script-src 'self'; object-src 'self';"
   },
   "options_page": "options.html",
   "web_accessible_resources": [

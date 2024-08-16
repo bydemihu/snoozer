@@ -7,7 +7,7 @@ console.log("injector.js entered");
 // initialize local js file variables for global chrome storage values
 let on;
 let quiet;
-let minimized;
+let minimized = false;
 let position;
 
 // set/get stored globals
@@ -55,22 +55,6 @@ chrome.storage.sync.get(['snoozerQuieted'], function (result) {
         console.log('snoozerQuieted retrieved as', quiet);
     }
 });
-
-chrome.storage.sync.get(['snoozerMinimized'], function (result) {
-    if (result.snoozerMinimized === undefined) {
-        chrome.storage.sync.set({ snoozerMinimized: false });
-        console.log('snoozerMinimized initialized as false');
-        minimized = false;
-    }
-
-    else {
-        minimized = result.snoozerQuieted;
-        console.log('snoozerMinimized retrieved as', minimized);
-    }
-});
-
-
-
 
 // initialize local variables
 let jump;
@@ -186,7 +170,6 @@ function jumpscare() {
     var rand = Math.floor(Math.random() * Math.min(images.length, sounds.length));
     jump = document.createElement('div');
 
-    //jump.style.backgroundImage = "url('" + images[rand] + "')";
     jump.style.width = "100%";
     jump.style.height = "100%";
     jump.style.position = "fixed";
@@ -231,10 +214,6 @@ window.addEventListener('message', function (event) {
         jump.remove();
     }
 
-    // if (event.data && event.data.action === 'quiettoggle') {
-    //     console.log("quiet called from iframe");
-    //     quiet = !quiet;
-    // }
 
     if (event.data && event.data.action === 'minimizetoggle') {
         console.log("minimize called from iframe")
@@ -247,17 +226,6 @@ window.addEventListener('message', function (event) {
 
         minimized = !minimized;
     }
-
-    // if (event.data && event.data.action === 'exit') {
-    //     console.log("exit called from iframe");
-    //     exit();
-    // }
-
-    // if (event.data && event.data.action === 'openpopup') {
-    //     console.log("open called from popup");
-    //     open();
-    // }
-
 });
 
 // global state listener

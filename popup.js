@@ -2,9 +2,8 @@
 
 console.log("popup.js entered");
 
-let on;
-
 document.addEventListener('DOMContentLoaded', async function () {
+    let on;
 
     // get global
     chrome.storage.sync.get(['snoozerEnabled'], function (result) {

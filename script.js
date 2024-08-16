@@ -1,27 +1,26 @@
-// THIS IS THE MAIN SNOOZER SCRIPT!
-
-// // Make sure DOM content loaded, then run script
-// import * as faceLandmarksDetection from './node_modules/@tensorflow-models/face-landmarks-detection';
-// import './node_modules/@tensorflow/tfjs-core';
-// // Register WebGL backend.
-// import './node_modules/@tensorflow/tfjs-backend-webgl';
-// import './node_modules/@mediapipe/face_mesh/face_mesh.js';
+// script.js is the main snoozer functionality script. it is attached to snoozer.html which is inserted as an iframe by injector.js.
 
 console.log("script.js entered");
 
-// CREATE GLOBAL VARS
-window.asleep = false;
+// local vars
 let minimized = false;
 let progress = 0;  // progress percentage
-let sleeptimer = 10;  // num of seconds, sort of rough, make this exact second count later
-let rate = 15 / sleeptimer;
+let rate = 1.5;  // num of seconds, sort of rough, make this exact second count later
+let framerate = 12;
+let lastframe = 0;
 let active = true;
-let showPoints = true;
+let showPoints = false;
 let blinkThreshold = 0.16;  // adjust for blink sensitivity
 let snoozecount = 0;
+let asleep = false;
 let quiet;
-let jump;
-let on;
+
+// COLORS
+// let dark = color(47, 63, 91);
+// let medium = color(194, 210, 255);
+// let light = color(228, 236, 244);
+// let accent = color(119, 57, 255);
+// let gold = color(239, 201, 123);
 
 // declare DOM elements
 let quietbutton;
@@ -29,13 +28,9 @@ let quietcolor;
 
 // retrieve global variables
 chrome.storage.sync.get(['snoozerQuieted'], function (result) {
-    quiet = result.snoozerQuieted !== undefined ? result.snoozerQuieted : false;
+    quiet = result.snoozerQuieted;
     console.log('script.js snoozerQuieted retrieved as', quiet);
-});
-
-chrome.storage.sync.get(['snoozerEnabled'], function (result) {
-    on = result.snoozerEnabled !== undefined ? result.snoozerEnabled : false;
-    console.log('script.js snoozerEnabled retrieved as', on);
+    turnquiet(quiet);  // set initial quiet button state
 });
 
 // LOAD CONTENT
@@ -51,31 +46,18 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const exit = document.getElementById("exit");
     const minimize = document.getElementById("minimize");
-    //const container = this.getElementById("container");
     const snoozebutton = document.getElementById("snoozebutton");
     quietbutton = document.getElementById("quietbutton");
     quietcolor = document.getElementById("quietcolor");
     const snoozetext = document.getElementById("snoozecount");
-
-    // COLORS
-    // let dark = color(47, 63, 91);
-    // let medium = color(194, 210, 255);
-    // let light = color(228, 236, 244);
-    // let accent = color(119, 57, 255);
-    // let gold = color(239, 201, 123);
 
     // CONFIGURE MODEL
     const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
     const detectorConfig = {
         runtime: 'tfjs',
         refineLandmarks: true,
-        //solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh', //https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh
-        //./node_modules/@mediapipe/face_mesh
     };
-
-
-    //https://github.com/tensorflow/tfjs-models/tree/master/face-landmarks-detection/src/mediapipe#usage
-
+    const estimationConfig = { flipHorizontal: false, staticImageMode: false };
 
     // GET VIDEO DATA
     const video = document.getElementById('video');
@@ -84,7 +66,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 
     if (navigator.mediaDevices.getUserMedia) {
-        //navigator.getUserMedia({ audio: false, video: { width: 360, height: 240 } })
         navigator.mediaDevices.getUserMedia({ video: { width: 360, height: 240 } })
             .then((stream) => {
                 console.log('Video access granted.');
@@ -98,48 +79,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
     }
 
-
-    // RUN DETECTION (FACEMESH ONLY)
-    const runDetection2 = async () => {
-
-        async function detectFaces() {
-            try {
-                const model = await facemesh.load();
-                //const video = document.getElementById("video");
-
-                const detect = async () => {
-                    const faces = await model.estimateFaces(video);
-
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    faces.forEach(face => {
-                        face.scaledMesh.forEach(keypoint => {
-                            const x = keypoint[0];
-                            const y = keypoint[1];
-                            //console.log(x, y);
-                            ctx.fillRect(x, y, 1, 1); // Draw a rectangle for each keypoint
-                        })
-                    })
-                    requestAnimationFrame(detect);
-                }
-                detect();
-
-            } catch (error) {
-                console.error("Error detecting faces:", error);
-            }
-        }
-
-        detectFaces();
-
-    };
-
-
     // RUN DETECTION (REFINED LANDMARKS + DETECTORCONFIG)
     const runDetection = async () => {
-
-        // version 2
-        //const model = await faceLandmarksDetection.load(
-        //faceLandmarksDetection.SupportedPackages.mediapipeFacemesh);
-
 
         // version 1
         const detector = await faceLandmarksDetection.createDetector(model, detectorConfig);
@@ -148,7 +89,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("detector created");
         ctx.drawImage(video, 0, 0, 360, 240); //initial video
         let isProcessing = false;  // initial processing state
-        var first = true;  // initial detect run (used for logging the first face array)
 
         // establish eye keypoint variables
         var RO = { x: 0, y: 0 };
@@ -161,145 +101,130 @@ document.addEventListener('DOMContentLoaded', async function () {
         var LB = { x: 0, y: 0 };
         var LI = { x: 0, y: 0 };
 
-        const detect = async () => {  // runs every frame while active
-            //console.log("detect called");
+        const detect = async (timestamp) => {  // runs every frame while active
 
             if (isProcessing) return;
             isProcessing = true;
 
-            // version 1
-            const estimationConfig = { flipHorizontal: false, staticImageMode: true };
-            const faces = await detector.estimateFaces(video, estimationConfig);
-            //console.log(video)
+            if (timestamp - lastframe >= 1000 / framerate) {
+                lastframe = timestamp;
 
-            // version 2
-            //const faces = await model.estimateFaces({ input: video });
 
-            if (first) {
-                console.log(faces);
-                first = false;
-            }
-            //console.log(faces)
+                // version 1
+                const faces = await detector.estimateFaces(video, estimationConfig);
 
-            // draw points
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(video, 0, 0, 360, 240);
+                // draw points
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(video, 0, 0, 360, 240);
 
-            // detect faces
-            faces.forEach(face => {
-                face.keypoints.forEach((keypoint, index) => {
-                    const x = keypoint.x;
-                    const y = keypoint.y;
+                // detect faces
+                faces.forEach(face => {
+                    face.keypoints.forEach((keypoint, index) => {
+                        
+                        const x = keypoint.x;
+                        const y = keypoint.y;
 
-                    // keypoint mapping
-                    if (index === 33) {  // RO
-                        RO.x = x;
-                        RO.y = y;
-                        ctx.fillStyle = "red";
-                    }
-                    else if (index === 159) {  // RT
-                        RT.x = x;
-                        RT.y = y;
-                        ctx.fillStyle = "red";
-                    }
-                    else if (index === 145) {  // RB
-                        RB.x = x;
-                        RB.y = y;
-                        ctx.fillStyle = "red";
-                    }
-                    else if (index === 133) {  // RI
-                        RI.x = x;
-                        RI.y = y;
-                        ctx.fillStyle = "red";
-                    }
-                    else if (index === 362) {  // LI
-                        LI.x = x;
-                        LI.y = y;
-                        ctx.fillStyle = "red";
-                    }
-                    else if (index === 386) {  // LT
-                        LT.x = x;
-                        LT.y = y;
-                        ctx.fillStyle = "red";
-                    }
-                    else if (index === 374) {  // LB
-                        LB.x = x;
-                        LB.y = y;
-                        ctx.fillStyle = "red";
-                    }
-                    else if (index === 263) {  // LO
-                        LO.x = x;
-                        LO.y = y;
-                        ctx.fillStyle = "red";
-                    }
-                    else {
-                        ctx.fillStyle = "white";
-                    }
+                        // keypoint mapping
+                        if (index === 33) {  // RO
+                            RO.x = x;
+                            RO.y = y;
+                            ctx.fillStyle = "red";
+                        }
+                        else if (index === 159) {  // RT
+                            RT.x = x;
+                            RT.y = y;
+                            ctx.fillStyle = "red";
+                        }
+                        else if (index === 145) {  // RB
+                            RB.x = x;
+                            RB.y = y;
+                            ctx.fillStyle = "red";
+                        }
+                        else if (index === 133) {  // RI
+                            RI.x = x;
+                            RI.y = y;
+                            ctx.fillStyle = "red";
+                        }
+                        else if (index === 362) {  // LI
+                            LI.x = x;
+                            LI.y = y;
+                            ctx.fillStyle = "red";
+                        }
+                        else if (index === 386) {  // LT
+                            LT.x = x;
+                            LT.y = y;
+                            ctx.fillStyle = "red";
+                        }
+                        else if (index === 374) {  // LB
+                            LB.x = x;
+                            LB.y = y;
+                            ctx.fillStyle = "red";
+                        }
+                        else if (index === 263) {  // LO
+                            LO.x = x;
+                            LO.y = y;
+                            ctx.fillStyle = "red";
+                        }
+                        else {
+                            ctx.fillStyle = "white";
+                        }
 
-                    if (showPoints) {  // draw points
-                        ctx.fillRect(x, y, 1, 1); // Draw a rectangle for each keypoint
-                    };
+                        if (showPoints) {  // draw points
+                            ctx.fillRect(x, y, 1, 1); // Draw a rectangle for each keypoint
+                        };
+                    });
                 });
-            });
 
-            // perform distance calculations
-            const LW = distance(LI.x, LO.x, LI.y, LO.y);
-            const LH = distance(LT.x, LB.x, LT.y, LB.y);
-            const RW = distance(RI.x, RO.x, RI.y, RO.y);
-            const RH = distance(RT.x, RB.x, RT.y, RB.y);
+                // perform distance calculations
+                const LW = distance(LI.x, LO.x, LI.y, LO.y);
+                const LH = distance(LT.x, LB.x, LT.y, LB.y);
+                const RW = distance(RI.x, RO.x, RI.y, RO.y);
+                const RH = distance(RT.x, RB.x, RT.y, RB.y);
 
-            // if (LH / LW <= blinkThreshold) {
-            //     console.log ("left blink");
-            // }
-
-            // if (RH / RW <= blinkThreshold) {
-            //     console.log ("right blink");
-            // }
-
-            if (LH / LW <= blinkThreshold && RH / RW <= blinkThreshold) {
-                asleep = true;
-                console.log("sleeping")
-            }
-            else {
-                asleep = false;
-            }
-
-            if (active) {
-                // perform all sleep-based actions
-                if (asleep) {
-                    document.getElementById("sun").style.display = "none";
-                    document.getElementById("moon").style.display = "block";
-
-                    if (progress > 100 - rate) {
-                        progress = 100;
-                        console.log("snoozed!!!");
-                        active = false;
-                        snoozecount++;
-                        snoozetext.textContent = String(snoozecount);
-
-                        window.parent.postMessage({ action: 'jumpscare' }, '*');  //send jumpscare to parent
-                        //jumpscare();
-                    }
-                    else {
-                        progress += rate;
-                    }
+                if (LH / LW <= blinkThreshold && RH / RW <= blinkThreshold) {
+                    asleep = true;
+                    console.log("sleeping")
                 }
-
                 else {
-                    document.getElementById("sun").style.display = "block";
-                    document.getElementById("moon").style.display = "none";
-
-                    if (progress >= 1) {
-                        progress += -1;  // save the value in progress
-                    }
+                    asleep = false;
                 }
 
-                // update progress
-                const clamped = map(progress, 0, 100, 8, 98);
-                document.getElementById("progress").style.width = clamped + "%"; // can't exceed 100? or 100 progress has to equal 95 width
-                document.getElementById("progressicon").style.left = progress + "%";
-            }
+                if (active) {
+                    // perform all sleep-based actions
+                    if (asleep) {
+                        document.getElementById("sun").style.display = "none";
+                        document.getElementById("moon").style.display = "block";
 
+                        if (progress > 100 - rate) {
+                            progress = 100;
+                            console.log("snoozed!!!");
+                            active = false;
+                            snoozecount++;
+                            snoozetext.textContent = String(snoozecount);
+
+                            window.parent.postMessage({ action: 'jumpscare' }, '*');  //send jumpscare to parent
+                        }
+                        else {
+                            progress += rate;
+                        }
+                    }
+
+                    else {
+                        document.getElementById("sun").style.display = "block";
+                        document.getElementById("moon").style.display = "none";
+
+                        if (progress >= 1) {
+                            progress += -1;  // save the value in progress
+                        }
+                    }
+
+                    // update progress
+                    const clamped = map(progress, 0, 100, 8, 98);
+                    document.getElementById("progress").style.width = clamped + "%"; // can't exceed 100? or 100 progress has to equal 95 width
+                    document.getElementById("progressicon").style.left = progress + "%";
+                }
+
+            }
             // finish frame calculations, rerun
             isProcessing = false;
             requestAnimationFrame(detect);
@@ -310,31 +235,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // OTHER FUNCTIONS AND CLASSES
-    // function jumpscare() {
-    //     // generate random
-    //     var rand = Math.floor(Math.random() * Math.min(images.length, sounds.length));
-    //     jump = document.createElement('div');
-
-    //     jump.style.backgroundImage = `url("${chrome.runtime.getURL(images[rand])}")`;
-    //     //jump.style.backgroundImage = "url('" + images[rand] + "')";
-    //     jump.style.backgroundSize = "fill";
-    //     jump.style.backgroundRepeat = "no-repeat";
-    //     jump.style.width = "100vw";
-    //     jump.style.height = "100vh";
-    //     jump.style.position = "absolute";
-    //     jump.style.zIndex = 9999999;
-    //     jump.id = "jumpscare";
-
-    //     document.body.insertBefore(jump, container);
-    //     //document.body.appendChild(jump);
-
-    //     if(!quiet){
-    //         var sound = new Audio(sounds[rand]);
-    //         sound.play();
-    //     }
-
-    // };
-
     canvas.onclick = () => {
         showPoints = !showPoints;
         console.log("points toggled");
@@ -352,17 +252,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     exit.onclick = () => {
-        //window.close();
         console.log("exited from interface");
-
-        //window.parent.postMessage({ action: 'exit' }, '*');
         chrome.storage.sync.set({ snoozerEnabled: false });
     }
 
     minimize.onclick = () => {
         console.log("minimize toggled");
-
-        window.parent.postMessage({ action: 'minimizetoggle' }, '*');
+        window.parent.postMessage({ action: 'minimizetoggle' }, '*');  // send minimize to injector
 
         if (minimized) {
             document.getElementById("logo").style.display = "block";
@@ -387,34 +283,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("snooze clicked")
         progress = 0;
 
-
         // reset state
         if (!active) {
             active = true;
-            //jump.parentNode.removeChild(jump);
 
-            window.parent.postMessage({ action: 'reset' }, '*');  //send reset to parent
-            //window.parent.postMessage({ asleep: asleep }, '*');
+            window.parent.postMessage({ action: 'reset' }, '*');  //send reset to injector
         }
     }
 
     quietbutton.onclick = () => {
-        // console.log("quiet toggled", !quiet)
-        // window.parent.postMessage({ action: 'quiettoggle' }, '*');  //send jumpscare to parent
-
-        // if(quiet){
-        //     quiet = false;
-        //     quietcolor.style.backgroundColor = "rgb(194, 210, 255)";
-        //     quietbutton.style.left = "0";
-        //     quietbutton.style.right = "";
-        // }
-        // else{
-        //     quiet = true;
-        //     quietcolor.style.backgroundColor = "rgb(119, 57, 255)";
-        //     quietbutton.style.left = "";
-        //     quietbutton.style.right = "0";
-        // }
-        chrome.storage.sync.set({ snoozerQuieted: !quiet });
+        chrome.storage.sync.set({ snoozerQuieted: !quiet });  //send quiet to global
     }
 
 });
@@ -426,6 +304,11 @@ chrome.storage.onChanged.addListener(function (changes, areaName) {
     // quiet toggled
     if (changes.snoozerQuieted) {
         quiet = changes.snoozerQuieted.newValue;
+        turnquiet(quiet);
+    }
+});
+
+function turnquiet(quiet){
         if (quiet) {
             quietcolor.style.backgroundColor = "rgb(119, 57, 255)";
             quietbutton.style.left = "";
@@ -436,6 +319,4 @@ chrome.storage.onChanged.addListener(function (changes, areaName) {
             quietbutton.style.left = "0";
             quietbutton.style.right = "";
         }
-    }
-
-});
+}
