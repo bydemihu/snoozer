@@ -1,7 +1,6 @@
 @font-face {
     font-family: quicksand;
     src: url("./assets/Quicksand.ttf");
-    font-weight: 600;
 }
 
 #video {
@@ -14,10 +13,19 @@ body {
     margin: 0;
     pointer-events: auto;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: auto;
+    min-width: max-content;
+}
+
+.page {
+    margin: 6px;
+}
+
+@media (min-width: 100px) {
+    .page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 }
 
 .no-select {
@@ -25,6 +33,7 @@ body {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .container {
@@ -51,6 +60,74 @@ body {
     margin-top: 12px;
     font-family: quicksand;
     height: 100%;
+}
+
+.flexrow {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-content:space-between;
+}
+
+.barcontainer{
+    position: relative;
+    width:100%;
+}
+
+.bar{
+    border-radius:50px;
+    width:100%;
+    background-color: rgb(194, 210, 255);
+    height: 12px;
+    position: absolute;
+    top:50%
+}
+
+.optionitem {
+    margin-bottom:18px;
+    width:100%;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    flex: 1;
+    margin-top: 12px;
+    font-family: quicksand;
+    height: 100%;
+}
+
+
+.header1 {
+    font-size: 40px;
+    font-weight: 500;
+    color: rgb(119, 57, 255);
+}
+
+.header2 {
+    font-size: 30px;
+    font-weight: 500;
+    color: rgb(119, 57, 255);
+}
+
+.header3 {
+    font-size: 20px;
+    font-weight: 500;
+    color: rgb(47, 63, 91);
+}
+
+.body1 {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgb(47, 63, 91);
+}
+
+.body2 {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgb(119, 57, 255)
 }
 
 #canvas {

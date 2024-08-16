@@ -1,6 +1,5 @@
 // THIS IS THE MAIN SNOOZER SCRIPT!
 
-
 // // Make sure DOM content loaded, then run script
 // import * as faceLandmarksDetection from './node_modules/@tensorflow-models/face-landmarks-detection';
 // import './node_modules/@tensorflow/tfjs-core';
@@ -8,18 +7,36 @@
 // import './node_modules/@tensorflow/tfjs-backend-webgl';
 // import './node_modules/@mediapipe/face_mesh/face_mesh.js';
 
+console.log("script.js entered");
+
 // CREATE GLOBAL VARS
 window.asleep = false;
 let minimized = false;
 let progress = 0;  // progress percentage
-let sleeptimer = 10;  // num of seconds, sort of rough
+let sleeptimer = 10;  // num of seconds, sort of rough, make this exact second count later
 let rate = 15 / sleeptimer;
 let active = true;
 let showPoints = true;
 let blinkThreshold = 0.16;  // adjust for blink sensitivity
 let snoozecount = 0;
-let quiet = false;
+let quiet;
 let jump;
+let on;
+
+// declare DOM elements
+let quietbutton;
+let quietcolor;
+
+// retrieve global variables
+chrome.storage.sync.get(['snoozerQuieted'], function (result) {
+    quiet = result.snoozerQuieted !== undefined ? result.snoozerQuieted : false;
+    console.log('script.js snoozerQuieted retrieved as', quiet);
+});
+
+chrome.storage.sync.get(['snoozerEnabled'], function (result) {
+    on = result.snoozerEnabled !== undefined ? result.snoozerEnabled : false;
+    console.log('script.js snoozerEnabled retrieved as', on);
+});
 
 // LOAD CONTENT
 document.addEventListener('DOMContentLoaded', async function () {
@@ -31,27 +48,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     canvas.setAttribute("style", "transform:scale(-1, 1);");
     var ctx = canvas.getContext("2d");
     ctx.fillStyle = "white";
-    
-    const exit = this.getElementById("exit");
-    const minimize = this.getElementById("minimize");
+
+    const exit = document.getElementById("exit");
+    const minimize = document.getElementById("minimize");
     //const container = this.getElementById("container");
-    const snoozebutton = this.getElementById("snoozebutton");
-    const quietbutton = this.getElementById("quietbutton");
-    const quietcolor = this.getElementById("quietcolor");
-    const snoozetext = this.getElementById("snoozecount");
-
-    // var images = [
-    //     'assets/incredible.png',
-    //     'assets/rock.jpg',
-    //     'assets/emoji.jpg',
-    // ];
-
-    // var sounds = [
-    //     'assets/airhorn.wav',
-    //     'assets/boom.mp3',
-    //     'assets/error.mp3',
-    //     'assets/alarm.webm',
-    // ];
+    const snoozebutton = document.getElementById("snoozebutton");
+    quietbutton = document.getElementById("quietbutton");
+    quietcolor = document.getElementById("quietcolor");
+    const snoozetext = document.getElementById("snoozecount");
 
     // COLORS
     // let dark = color(47, 63, 91);
@@ -270,7 +274,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                         progress = 100;
                         console.log("snoozed!!!");
                         active = false;
-                        snoozecount ++;
+                        snoozecount++;
                         snoozetext.textContent = String(snoozecount);
 
                         window.parent.postMessage({ action: 'jumpscare' }, '*');  //send jumpscare to parent
@@ -320,7 +324,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     //     jump.style.position = "absolute";
     //     jump.style.zIndex = 9999999;
     //     jump.id = "jumpscare";
-        
+
     //     document.body.insertBefore(jump, container);
     //     //document.body.appendChild(jump);
 
@@ -328,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     //         var sound = new Audio(sounds[rand]);
     //         sound.play();
     //     }
-        
+
     // };
 
     canvas.onclick = () => {
@@ -342,54 +346,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    function map(num, inMin, inMax, outMin, outMax){ 
+    function map(num, inMin, inMax, outMin, outMax) {
         num = ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
         return num;
     }
 
-    //setDrag(container)  (outdated, drag is now performed in injector.js)
-    function setDrag(elem) {
-        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-
-        if (document.getElementById(elem.id + "grabber")) {
-            document.getElementById(elem.id + "grabber").onmousedown = startDrag;
-            console.log("dragged grabber")
-        }
-        else {
-            elem.onmousedown = startDrag;
-            console.log("dragged element")
-        }
-
-        function startDrag(e) {
-            e = e || window.event;
-            e.preventDefault();
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            document.onmouseup = stopDrag;
-            document.onmousemove = dragElement;
-        }
-
-        function dragElement(e) {
-            e = e || window.event;
-            e.preventDefault();
-            pos1 = pos3 - e.clientX;
-            pos2 = pos4 - e.clientY;
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-
-            elem.style.top = (elem.offsetTop - pos2) + "px";
-            elem.style.left = (elem.offsetLeft - pos1) + "px";
-        }
-
-        function stopDrag() {
-            document.onmouseup = null;
-            document.onmousemove = null;
-        }
-    }
-
     exit.onclick = () => {
-        window.close();
-        console.log("exited");
+        //window.close();
+        console.log("exited from interface");
+
+        //window.parent.postMessage({ action: 'exit' }, '*');
+        chrome.storage.sync.set({ snoozerEnabled: false });
     }
 
     minimize.onclick = () => {
@@ -422,7 +389,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 
         // reset state
-        if(!active){
+        if (!active) {
             active = true;
             //jump.parentNode.removeChild(jump);
 
@@ -432,20 +399,42 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     quietbutton.onclick = () => {
-        console.log("quiet toggled", !quiet)
-        window.parent.postMessage({ action: 'quiettoggle' }, '*');  //send jumpscare to parent
+        // console.log("quiet toggled", !quiet)
+        // window.parent.postMessage({ action: 'quiettoggle' }, '*');  //send jumpscare to parent
 
-        if(quiet){
-            quiet = false;
-            quietcolor.style.backgroundColor = "rgb(194, 210, 255)";
-            quietbutton.style.left = "0";
-            quietbutton.style.right = "";
-        }
-        else{
-            quiet = true;
+        // if(quiet){
+        //     quiet = false;
+        //     quietcolor.style.backgroundColor = "rgb(194, 210, 255)";
+        //     quietbutton.style.left = "0";
+        //     quietbutton.style.right = "";
+        // }
+        // else{
+        //     quiet = true;
+        //     quietcolor.style.backgroundColor = "rgb(119, 57, 255)";
+        //     quietbutton.style.left = "";
+        //     quietbutton.style.right = "0";
+        // }
+        chrome.storage.sync.set({ snoozerQuieted: !quiet });
+    }
+
+});
+
+
+// global state listener
+chrome.storage.onChanged.addListener(function (changes, areaName) {
+
+    // quiet toggled
+    if (changes.snoozerQuieted) {
+        quiet = changes.snoozerQuieted.newValue;
+        if (quiet) {
             quietcolor.style.backgroundColor = "rgb(119, 57, 255)";
             quietbutton.style.left = "";
             quietbutton.style.right = "0";
+        }
+        else {
+            quietcolor.style.backgroundColor = "rgb(194, 210, 255)";
+            quietbutton.style.left = "0";
+            quietbutton.style.right = "";
         }
     }
 

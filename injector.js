@@ -1,20 +1,84 @@
-// this adds test.html snoozer interface to the webpage. it gets called by background.js!
+// injector.js adds the snoozer interface to the current webpage.
+
+// naming conventions: globals have a name like "snoozerMinimized", local var to hold the value have a name like "minimized"
+
+console.log("injector.js entered");
+
+// initialize local js file variables for global chrome storage values
+let on;
+let quiet;
+let minimized;
+let position;
+
+// set/get stored globals
+chrome.storage.sync.get(['snoozerPosition'], function (result) {
+    if (result.snoozerPosition === undefined) {
+        chrome.storage.sync.set({ snoozerPosition: {x:12, y:12} });
+        console.log('snoozerPosition initialized');
+        position = result.snoozerPosition;
+    }
+
+    else {
+        position = result.snoozerPosition;
+        console.log('snoozerPosition retrieved as', position);
+    }
+});
+
+chrome.storage.sync.get(['snoozerEnabled'], function (result) {
+    if (result.snoozerEnabled === undefined) {
+        chrome.storage.sync.set({ snoozerEnabled: false });
+        console.log('snoozerEnabled initialized as false');
+        on = false;
+    }
+
+    else {
+        on = result.snoozerEnabled;
+        console.log('snoozerEnabled retrieved as', on);
+
+        // initial open
+        if (on) {
+            open()
+            console.log('snoozerEnabled initial open');
+        }
+    }
+});
+
+chrome.storage.sync.get(['snoozerQuieted'], function (result) {
+    if (result.snoozerQuieted === undefined) {
+        chrome.storage.sync.set({ snoozerQuieted: false });
+        console.log('snoozerQuieted initialized as false');
+        quiet = false;
+    }
+
+    else {
+        quiet = result.snoozerQuieted;
+        console.log('snoozerQuieted retrieved as', quiet);
+    }
+});
+
+chrome.storage.sync.get(['snoozerMinimized'], function (result) {
+    if (result.snoozerMinimized === undefined) {
+        chrome.storage.sync.set({ snoozerMinimized: false });
+        console.log('snoozerMinimized initialized as false');
+        minimized = false;
+    }
+
+    else {
+        minimized = result.snoozerQuieted;
+        console.log('snoozerMinimized retrieved as', minimized);
+    }
+});
 
 
-let iframecontainer = document.createElement('div');
-let iframe = document.createElement('iframe');
-let iframegrabber = document.createElement('div');
-let iframeexit = document.createElement('div');
-let quiet = false;
-let minimized = false;
+
+
+// initialize local variables
 let jump;
-
 var images = [
     'assets/incredible.png',
     'assets/rock.jpg',
     'assets/emoji.jpg',
 ];
-
 var sounds = [
     'assets/airhorn.wav',
     'assets/boom.mp3',
@@ -22,72 +86,72 @@ var sounds = [
     'assets/alarm.webm',
 ];
 
-// Set the attributes for the iframe
-iframe.src = chrome.runtime.getURL('snoozer.html'); // Use the local snoozer.html file
-iframe.sandbox = "allow-scripts allow-same-origin allow-forms";
-iframe.allow = 'camera; microphone';
-iframe.style.width = '310px';
-iframe.style.height = '560px';
-iframe.style.border = 'none';
-iframe.style.overflow = 'hidden';
-iframe.style.pointerEvents = 'auto';
-iframe.style.zIndex = '123456789';
-iframe.style.transform = '(translate3d(0, 0, 1));'
-iframe.style.position = 'absolute';
+// initialize popup elements
+let iframecontainer = document.createElement('div');
+let iframe = document.createElement('iframe');
+let iframegrabber = document.createElement('div');
+let iframeexit = document.createElement('div');
 
-// movable container containing the iframe
-iframecontainer.style.position = 'fixed';
-iframecontainer.style.top = '0';
-iframecontainer.style.left = '0';
-iframecontainer.style.width = '0';
-iframecontainer.id = "iframecontainer";
-iframecontainer.style.zIndex = '1234567899';
+function open() {
+    // set iframe styles
+    // Set the attributes for the iframe
+    iframe.src = chrome.runtime.getURL('snoozer.html'); // Use the local snoozer.html file
+    iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-popups";
+    iframe.allow = 'camera; microphone';
+    iframe.style.width = '310px';
+    iframe.style.height = '560px';
+    iframe.style.border = 'none';
+    iframe.style.overflow = 'hidden';
+    iframe.style.pointerEvents = 'auto';
+    iframe.style.zIndex = '123456789';
+    iframe.style.transform = '(translate3d(0, 0, 1));'
+    iframe.style.position = 'absolute';
 
-// grab bar
-iframegrabber.style.position = 'absolute';
-iframegrabber.style.top = '0px';
-iframegrabber.style.left = '48px';
-iframegrabber.style.width = "180px";
-iframegrabber.style.height = "48px";
-iframegrabber.id = "iframecontainergrabber"
-iframegrabber.style.zIndex = '1234567899';
+    // movable container containing the iframe
+    iframecontainer.style.position = 'fixed';
+    iframecontainer.style.top = position.y;
+    iframecontainer.style.left = position.x;
+    iframecontainer.style.width = '0';
+    iframecontainer.id = "iframecontainer";
+    iframecontainer.style.zIndex = '1234567899';
 
-// exit button
-iframeexit.style.position = 'absolute';
-iframeexit.style.top = '12px';
-iframeexit.style.left = '270px';
-iframeexit.style.width = "32px";
-iframeexit.style.height = "32px";
-iframeexit.id = "iframeexit";
-iframeexit.style.zIndex = '1234567899';
-iframeexit.style.cursor = "pointer";
+    // grab bar
+    iframegrabber.style.position = 'absolute';
+    iframegrabber.style.top = '0px';
+    iframegrabber.style.left = '48px';
+    iframegrabber.style.width = "180px";
+    iframegrabber.style.height = "48px";
+    iframegrabber.id = "iframecontainergrabber"
+    iframegrabber.style.zIndex = '1234567899';
 
-//Append the iframe to the body of the webpage
-document.body.appendChild(iframecontainer);
-iframecontainer.appendChild(iframegrabber);
-iframecontainer.appendChild(iframeexit);
-iframecontainer.appendChild(iframe);
+    // exit button
+    iframeexit.style.position = 'absolute';
+    iframeexit.style.top = '12px';
+    iframeexit.style.left = '270px';
+    iframeexit.style.width = "32px";
+    iframeexit.style.height = "32px";
+    iframeexit.id = "iframeexit";
+    iframeexit.style.zIndex = '1234567899';
+    iframeexit.style.cursor = "pointer";
 
-iframeexit.onclick = () => {
-    iframecontainer.remove();
+    // append and display the iframe
+    document.body.appendChild(iframecontainer);
+    iframecontainer.appendChild(iframegrabber);
+    iframecontainer.appendChild(iframe);
 
-    if (jump) {
-        jump.remove();
-    }
+    setDrag(iframecontainer);
 }
 
-
-setDrag(iframecontainer)
 function setDrag(elem) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
     if (document.getElementById(elem.id + "grabber")) {
         document.getElementById(elem.id + "grabber").onmousedown = startDrag;
-        console.log("dragged grabber")
+        //console.log("dragged grabber")
     }
     else {
         elem.onmousedown = startDrag;
-        console.log("dragged element")
+        //console.log("dragged element")
     }
 
     function startDrag(e) {
@@ -134,23 +198,29 @@ function jumpscare() {
     jump.style.backgroundRepeat = "no-repeat";
     jump.style.backgroundSize = "100% 100%";
 
-    //document.body.insertBefore(jump, iframecontainer);
     document.body.appendChild(jump);
 
     console.log("inject made a jumpscare");
 
-    if(!quiet){
+    if (!quiet) {
         var sound = new Audio();
         sound.src = chrome.runtime.getURL(sounds[rand]);
         sound.play();
     }
-    
+
 };
 
-window.addEventListener('message', function(event) {
-    // Ensure the message is coming from the expected origin
-    //if (event.origin !== 'snoozer.html') return;
+function exit() {
+    iframecontainer.remove();
 
+    if (jump) {
+        jump.remove();
+    }
+
+}
+
+// interface message listener (non-globals)
+window.addEventListener('message', function (event) {
     if (event.data && event.data.action === 'jumpscare') {
         console.log("jumpscare called from iframe");
         jumpscare();
@@ -161,23 +231,62 @@ window.addEventListener('message', function(event) {
         jump.remove();
     }
 
-    if (event.data && event.data.action === 'quiettoggle') {
-        quiet = !quiet;
-    }
-    
-    if (event.data && event.data.action === 'minimizetoggle') {
+    // if (event.data && event.data.action === 'quiettoggle') {
+    //     console.log("quiet called from iframe");
+    //     quiet = !quiet;
+    // }
 
-        if(!minimized){
+    if (event.data && event.data.action === 'minimizetoggle') {
+        console.log("minimize called from iframe")
+        if (!minimized) {
             iframe.style.height = "120px";
-            console.log("minimized iframe");
         }
-        else{
+        else {
             iframe.style.height = "560px";
         }
 
         minimized = !minimized;
-        
     }
+
+    // if (event.data && event.data.action === 'exit') {
+    //     console.log("exit called from iframe");
+    //     exit();
+    // }
+
+    // if (event.data && event.data.action === 'openpopup') {
+    //     console.log("open called from popup");
+    //     open();
+    // }
+
 });
+
+// global state listener
+chrome.storage.onChanged.addListener(function (changes, areaName) {
+
+    // turned on/off
+    if (changes.snoozerEnabled) {
+        
+        on = changes.snoozerEnabled.newValue;
+        if (on) {
+            open();
+            console.log("snoozer opened")
+        } else {
+            exit();
+            console.log("snoozer exited")
+        }
+    }
+
+    // quiet
+    if (changes.snoozerQuieted) {
+        quiet = changes.snoozerQuieted.newValue;
+    }
+
+});
+
+// testing area: run snoozer automatically
+// open();
+
+
+
 
 

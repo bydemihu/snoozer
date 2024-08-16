@@ -14,8 +14,8 @@
 
 <body>
 
-    <body>
-        <div class="container" id="container" style="width:280px; position: static; margin-top: 2%;">
+    <div class="page">
+        <div class="container" id="container" style="width:280px; position: static;">
 
             <div class="navbar">
                 <div class="iconwrappersmaller" class="no-select"> <a href="popup.html"> <img class="icon"
@@ -32,45 +32,103 @@
             <img id="logo" src="./assets/snoozerlogo.svg" style="width:100%;" draggable="false" class="no-select">
             </img>
 
-            <div class="center" style="font-size: 30px; font-weight: 400; color: rgb(119, 57, 255); margin-top: -10%;">
+            <div class="center header2" style="margin-top:-24px; margin-bottom: 24px;">
                 OPTIONS
             </div>
 
-            <div id="uicontainer" class="center" style="width: 100%; color:rgb(47, 63, 91); cursor: default; gap: 12px;">
+            <div class="optionitem">
+                <div style="display: flex; flex-direction: row; width: 100%; justify-content:space-between">
 
-                <div style="height: 48px; position: relative; width: 100%; cursor: pointer;">
-                    <div class="round" style="background-color: rgb(119, 57, 255); bottom: 0">
-                    </div>
-                    <div id="snoozersitebutton" class="round"
-                        style="background-color: rgb(229, 196, 130); top: 0; font-size: 20px;">
-                        <a href="https://demi.hu/" target="_blank"  style="text-decoration:none; color: inherit; ">
-                            <p class="no-select">ABOUT</p>
-                        </a>
-                    </div>
-
-                </div>
-
-
-                <div style="height: 42px; width: 100%; position: relative; width: 80px; ">
-                    <div id="oncolor"
-                        style="background-color: rgb(194, 210, 255); height: 100%; width: 100%; border-radius: 36px;">
-                        <div id="onbutton" class="round"
-                            style="background-color: rgb(229, 196, 130); left: 0; width: 36px; height: 36px; margin: 3px; cursor: pointer">
+                    <div>
+                        <div class="header3">
+                            QUIET
+                        </div>
+                        <div class="body1">
+                            Mute jumpscares
                         </div>
                     </div>
+
+                    <div style="height: 42px; width: 100%; position: relative; width: 80px; ">
+                        <div id="oncolor"
+                            style="background-color: rgb(194, 210, 255); height: 100%; width: 100%; border-radius: 36px;">
+                            <div id="onbutton" class="round"
+                                style="background-color: rgb(229, 196, 130); left: 0; width: 36px; height: 36px; margin: 3px; cursor: pointer">
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
-            
+            </div>
+
+            <div class="optionitem">
+                <div class="header3">
+                    TIMER
+                </div>
+                <div class="body1">
+                    Duration (seconds) of sleep before the jumpscare is played
+                </div>
+
+                <div class="flexrow">
+                    <div class="barcontainer">
+                        <div class="bar"></div>
+                        <div id="sleepbar" class="bar" style="background-color: rgb(119, 57, 255); width: 20%"></div>
+                        <div id="sleepbarbutton" class="round"
+                            style="background-color: rgb(229, 196, 130); left: 18%; top: 32%; width: 24px; height: 24px; cursor: pointer">
+                        </div>
+                    </div>
+
+                    <div class="header2" style="margin-left:24px;margin-right:6px;font-weight:700">
+                        10
+                    </div>
+                </div>
+            </div>
+
+            <div class="optionitem">
+                <div class="header3">
+                    SENSITIVITY
+                </div>
+                <div class="body1">
+                    Threshold of sleep detection
+                </div>
+
+                <div class="flexrow">
+                    <div class="barcontainer">
+                        <div class="bar"></div>
+                        <div id="sensebar" class="bar" style="background-color: rgb(119, 57, 255); width: 50%"></div>
+                        <div id="sensebarbutton" class="round"
+                            style="background-color: rgb(229, 196, 130); left: 45%; top: 32%; width: 24px; height: 24px; cursor: pointer">
+                        </div>
+                    </div>
+
+                    <div class="header2" style="margin-left:24px;margin-right:6px;font-weight:700">
+                        12
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 48px; position: relative; width: 100%; cursor: pointer;">
+                <div class="round" style="background-color: rgb(119, 57, 255); bottom: 0">
+                </div>
+                <div id="snoozersitebutton" class="round"
+                    style="background-color: rgb(229, 196, 130); top: 0; font-size: 20px;">
+                    <a href="https://demi.hu/" target="_blank" style="text-decoration:none; color: inherit; ">
+                        <p class="header3 no-select">ABOUT</p>
+                    </a>
+                </div>
+
+            </div>
+
+            <div class = "center">
+                <div class = body2>
+                    © Demi Hu 2024
+                </div>
+            </div>
+
+
 
         </div>
-
-
-        </div>
-
-    </body>
-
-    <button id="requestPermission">Allow Camera</button>
-    <button id="openPopup">openPopup</button>
-
+    </div>
 </body>
 
 </html>
