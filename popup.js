@@ -3,20 +3,21 @@
 console.log("popup.js entered");
 
 document.addEventListener('DOMContentLoaded', async function () {
-    let on;
+    let enabled;
 
     // get global
     chrome.storage.sync.get(['snoozerEnabled'], function (result) {
-        on = result.snoozerEnabled;
-        console.log("popup retrieved snoozerEnabled as", on);
+        enabled = result.snoozerEnabled;
+        console.log("popup retrieved snoozerEnabled as", enabled);
 
         // set initial local state
-        if (on) {
+        if (enabled) {
             turnon();
         }
         else {
             turnoff();
         }
+
     });
 
     // get local elements
@@ -26,11 +27,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     // global state listener
     chrome.storage.onChanged.addListener(function (changes, areaName) {
         if (changes.snoozerEnabled) {
-            on = changes.snoozerEnabled.newValue;  // update on value
-            if (on) {
+            enabled = changes.snoozerEnabled.newValue;  // update on value
+            if (enabled === true) {
                 turnon();
             } else {
                 turnoff();
+                console.log("turned off from iframe")
             }
         }
     });
@@ -38,8 +40,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // global state changer
     // NOTHING ELSE NEEDED, injector.js has its own global state listener
     onbutton.onclick = () => {
-        console.log("on toggled from popup", !on);
-        chrome.storage.sync.set({ snoozerEnabled: !on });
+        console.log("on toggled from popup", !enabled);
+        chrome.storage.sync.set({ snoozerEnabled: !enabled });
     }
 
     // local state changer functions
@@ -48,20 +50,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         onbutton.style.left = "";
         onbutton.style.right = "0";
 
-        // inject script
+        // also messages activeTab
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-            let activeTab = tabs[0];
-            chrome.scripting.executeScript({
-              target: { tabId: activeTab.id },
-              files: ['injector.js']
-            }, () => {
-              if (chrome.runtime.lastError) {
-                console.error(chrome.runtime.lastError);
-              } else {
-                console.log('injector.js injected successfully');
-              }
-            });
-          });
+            const activeTabId = tabs[0].id;
+            chrome.tabs.sendMessage(activeTabId, { action: 'activateTab' });
+        });
     }
 
     function turnoff() {

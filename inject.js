@@ -1,54 +1,42 @@
-// injector.js adds the snoozer interface to the current webpage.
+// this adds test.html snoozer interface to the webpage. it gets called by background.js!
 
-// naming conventions: globals have a name like "snoozerMinimized", local var to hold the value have a name like "minimized"
-
-console.log("injector.js entered");
-
-// initialize local js file variables for global chrome storage values
-//let on;
-let quiet;
-let minimized = false;
-let position = { x: 12, y: 12 };
-
-// initialize popup elements
 let iframecontainer;
 let iframe;
 let iframegrabber;
-//let iframeexit = document.createElement('div');
+let iframeexit;
+let quiet = false;
+let minimized = false;
+let jump;
+let position = { top: '12px', left: '12px' };
+let active; // if the current tab is active
+let enabled;
 
-// set/get stored globals
-chrome.storage.sync.get(['snoozerPosition'], function (result) {
-    if (result.snoozerPosition === undefined) {
-        chrome.storage.sync.set({ snoozerPosition: { x: 12, y: 12 } });
-        console.log('snoozerPosition initialized');
-        position = result.snoozerPosition;
-    }
+var images = [
+    'assets/incredible.png',
+    'assets/rock.jpg',
+    'assets/emoji.jpg',
+];
 
-    else {
-        position = result.snoozerPosition;
-        console.log('snoozerPosition retrieved as', position);
-    }
-
-    // testing area: run snoozer automatically
-    open();
-});
+var sounds = [
+    'assets/airhorn.wav',
+    'assets/boom.mp3',
+    'assets/error.mp3',
+    'assets/alarm.webm',
+];
 
 chrome.storage.sync.get(['snoozerEnabled'], function (result) {
     if (result.snoozerEnabled === undefined) {
         chrome.storage.sync.set({ snoozerEnabled: false });
         console.log('snoozerEnabled initialized as false');
-        //on = false;
+        enabled = false;
     }
 
     else {
-        //on = result.snoozerEnabled;
-        //console.log('snoozerEnabled retrieved as', on);
-
-        // initial open
-        if (result.snoozerEnabled) {
-            //open()
+        if (result.snoozerEnabled && active) {
             console.log('snoozerEnabled initial open');
+            open();
         }
+        enabled = result.snoozerEnabled;
     }
 });
 
@@ -65,22 +53,20 @@ chrome.storage.sync.get(['snoozerQuieted'], function (result) {
     }
 });
 
-// initialize local variables
-let jump;
-var images = [
-    'assets/incredible.png',
-    'assets/rock.jpg',
-    'assets/emoji.jpg',
-];
-var sounds = [
-    'assets/airhorn.wav',
-    'assets/boom.mp3',
-    'assets/error.mp3',
-    'assets/alarm.webm',
-];
+chrome.storage.sync.get(['snoozerPosition'], function (result) {
+    if (result.snoozerPosition === undefined) {
+        chrome.storage.sync.set({ snoozerPosition: { top: '12px', left: '12px' } });
+        console.log('snoozerPosition initialized');
+        position = result.snoozerPosition;
+    }
+
+    else {
+        position = result.snoozerPosition;
+        console.log('snoozerPosition retrieved as', position);
+    }
+});
 
 function open() {
-    // create iframe elements
     iframecontainer = document.createElement('div');
     iframe = document.createElement('iframe');
     iframegrabber = document.createElement('div');
@@ -100,8 +86,8 @@ function open() {
 
     // movable container containing the iframe
     iframecontainer.style.position = 'fixed';
-    iframecontainer.style.top = position.y;
-    iframecontainer.style.left = position.x;
+    iframecontainer.style.top = position.top;
+    iframecontainer.style.left = position.left;
     iframecontainer.style.width = '0';
     iframecontainer.id = "iframecontainer";
     iframecontainer.style.zIndex = '1234567899';
@@ -115,24 +101,26 @@ function open() {
     iframegrabber.id = "iframecontainergrabber"
     iframegrabber.style.zIndex = '1234567899';
 
-    // // exit button
-    // iframeexit.style.position = 'absolute';
-    // iframeexit.style.top = '12px';
-    // iframeexit.style.left = '270px';
-    // iframeexit.style.width = "32px";
-    // iframeexit.style.height = "32px";
-    // iframeexit.id = "iframeexit";
-    // iframeexit.style.zIndex = '1234567899';
-    // iframeexit.style.cursor = "pointer";
-
-    // append and display the iframe
+    //Append the iframe to the body of the webpage
     document.body.appendChild(iframecontainer);
     iframecontainer.appendChild(iframegrabber);
     iframecontainer.appendChild(iframe);
 
     setDrag(iframecontainer);
 
-    console.log("opened and displayed snoozer iframe");
+}
+
+function exit() {
+    if (iframecontainer) {
+        iframecontainer.remove();
+        if (jump) {
+            jump.remove();
+        }
+        iframecontainer = null;
+        iframe = null;
+        iframegrabber = null;
+        iframeexit = null;
+    }
 }
 
 function setDrag(elem) {
@@ -140,12 +128,20 @@ function setDrag(elem) {
 
     if (document.getElementById(elem.id + "grabber")) {
         document.getElementById(elem.id + "grabber").onmousedown = startDrag;
-        //console.log("dragged grabber")
+        console.log("dragged grabber")
     }
     else {
         elem.onmousedown = startDrag;
-        //console.log("dragged element")
+        console.log("dragged element")
     }
+
+    // retrieve position
+    chrome.storage.sync.get(['snoozerPosition'], function(result) {
+        if (result.snoozerPosition) {
+            elem.style.top = result.snoozerPosition.top;
+            elem.style.left = result.snoozerPosition.left;
+        }
+    });
 
     function startDrag(e) {
         e = e || window.event;
@@ -171,6 +167,14 @@ function setDrag(elem) {
     function stopDrag() {
         document.onmouseup = null;
         document.onmousemove = null;
+
+        // update position
+        chrome.storage.sync.set({
+            snoozerPosition: {
+                top: elem.style.top,
+                left: elem.style.left
+            }
+        });
     }
 }
 
@@ -179,16 +183,19 @@ function jumpscare() {
     var rand = Math.floor(Math.random() * Math.min(images.length, sounds.length));
     jump = document.createElement('div');
 
+    //jump.style.backgroundImage = "url('" + images[rand] + "')";
     jump.style.width = "100%";
     jump.style.height = "100%";
     jump.style.position = "fixed";
     jump.style.top = "0";
     jump.style.zIndex = 10000000;
     jump.id = "jumpscare";
+
     jump.style.backgroundImage = `url("${chrome.runtime.getURL(images[rand])}")`;
     jump.style.backgroundRepeat = "no-repeat";
     jump.style.backgroundSize = "100% 100%";
 
+    //document.body.insertBefore(jump, iframecontainer);
     document.body.appendChild(jump);
 
     console.log("inject made a jumpscare");
@@ -201,18 +208,13 @@ function jumpscare() {
 
 };
 
-function exit() {
-    if (iframecontainer) {
-        iframecontainer.remove();
-    }
-
-    if (jump) {
-        jump.remove();
-    }
-}
-
-// interface message listener (non-globals)
+// iframe state listener
 window.addEventListener('message', function (event) {
+    // Ensure the message is coming from the expected origin
+    //if (event.origin !== 'snoozer.html') return;
+
+    if (active){  // listener only works if active
+
     if (event.data && event.data.action === 'jumpscare') {
         console.log("jumpscare called from iframe");
         jumpscare();
@@ -223,11 +225,15 @@ window.addEventListener('message', function (event) {
         jump.remove();
     }
 
+    if (event.data && event.data.action === 'quiettoggle') {
+        quiet = !quiet;
+    }
 
     if (event.data && event.data.action === 'minimizetoggle') {
-        console.log("minimize called from iframe")
+
         if (!minimized) {
             iframe.style.height = "120px";
+            console.log("minimized iframe");
         }
         else {
             iframe.style.height = "560px";
@@ -235,43 +241,47 @@ window.addEventListener('message', function (event) {
 
         minimized = !minimized;
     }
+}
+
 });
 
 // global state listener
 chrome.storage.onChanged.addListener(function (changes, areaName) {
 
-    // turned on/off
+
     if (changes.snoozerEnabled) {
-
-        // on = changes.snoozerEnabled.newValue;
-
-        // if (on) {
-        //     open();
-        //     console.log("snoozer opened")
-        // } else {
-        //     exit();
-        //     console.log("snoozer exited")
-        // }
-
-        if (changes.snoozerEnabled.newValue) {
+        if (changes.snoozerEnabled.newValue && active) {
             open();
             console.log("snoozer opened")
         } else {
             exit();
             console.log("snoozer exited")
         }
+        enabled = changes.snoozerEnabled.newValue;  // local enabled variable containing global value;
     }
+    
 
     // quiet
     if (changes.snoozerQuieted) {
         quiet = changes.snoozerQuieted.newValue;
     }
 
+
 });
 
+// tab state listner
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.action === "activateTab" && enabled) {
 
+        active = true;
+        open();
+        // reinsert iframe WITHOUT affecting snoozerEnabled
 
+    } else if (request.action === "deactivateTab") {
 
-
-
+        active = false;
+        exit();
+        // remove iframe WITHOUT affecting snoozerEnabled
+    }
+});
 
