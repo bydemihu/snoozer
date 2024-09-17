@@ -183,7 +183,6 @@ function jumpscare() {
     var rand = Math.floor(Math.random() * Math.min(images.length, sounds.length));
     jump = document.createElement('div');
 
-    //jump.style.backgroundImage = "url('" + images[rand] + "')";
     jump.style.width = "100%";
     jump.style.height = "100%";
     jump.style.position = "fixed";
@@ -213,7 +212,7 @@ window.addEventListener('message', function (event) {
     // Ensure the message is coming from the expected origin
     //if (event.origin !== 'snoozer.html') return;
 
-    if (active){  // listener only works if active
+    if (active && enabled){  // listener only works if active
 
     if (event.data && event.data.action === 'jumpscare') {
         console.log("jumpscare called from iframe");
