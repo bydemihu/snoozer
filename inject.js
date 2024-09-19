@@ -270,14 +270,28 @@ chrome.storage.onChanged.addListener(function (changes, areaName) {
 
 // tab state listner
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log("received", request.action.toString(), "from background");
+
     if (request.action === "activateTab" && enabled) {
 
+        console.log("received activateTab from background");
         active = true;
-        open();
+
+        if (!document.getElementById('iframecontainer')) {
+            console.log('No element with ID "iframecontainer" exists. Safe to proceed.');
+            open();
+        } else {
+            console.log('Element with ID "iframecontainer" already exists.');
+            exit();
+            open();
+        }
+
+        // open();
         // reinsert iframe WITHOUT affecting snoozerEnabled
 
     } else if (request.action === "deactivateTab") {
 
+        console.log("received deactivateTab from background");
         active = false;
         exit();
         // remove iframe WITHOUT affecting snoozerEnabled

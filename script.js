@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         ctx.drawImage(video, 0, 0, 360, 240); //initial video
         let isProcessing = false;  // initial processing state
 
+
         // establish eye keypoint variables
         var RO = { x: 0, y: 0 };
         var RT = { x: 0, y: 0 };
@@ -116,6 +117,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // draw points
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(video, 0, 0, 360, 240);
+                
 
                 // detect faces
                 faces.forEach(face => {

@@ -50,11 +50,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         onbutton.style.left = "";
         onbutton.style.right = "0";
 
-        // also messages activeTab
-        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-            const activeTabId = tabs[0].id;
-            chrome.tabs.sendMessage(activeTabId, { action: 'activateTab' });
-        });
+        // // also messages activeTab
+        // chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        //     const activeTabId = tabs[0].id;
+        //     chrome.tabs.sendMessage(activeTabId, { action: 'activateTab' });
+        // });
     }
 
     function turnoff() {
