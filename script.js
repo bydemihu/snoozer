@@ -5,33 +5,42 @@ console.log("script.js entered");
 // local vars
 let minimized = false;
 let progress = 0;  // progress percentage
-let rate = 1.5;  // num of seconds, sort of rough, make this exact second count later
+let rate;  
 let framerate = 12;
 let lastframe = 0;
 let active = true;
 let showPoints = false;
-let blinkThreshold = 0.16;  // adjust for blink sensitivity
+let blinkThreshold;  // adjust for blink sensitivity
+// range: 0.16 is ideal, 0.08 is low end, 0.36 is high end (1-10 scale for final)
 let snoozecount = 0;
 let asleep = false;
 let quiet;
-
-// COLORS
-// let dark = color(47, 63, 91);
-// let medium = color(194, 210, 255);
-// let light = color(228, 236, 244);
-// let accent = color(119, 57, 255);
-// let gold = color(239, 201, 123);
 
 // declare DOM elements
 let quietbutton;
 let quietcolor;
 
-// retrieve global variables
+// timer calculation: 100% progress is "100". it runs as 12 frames per second, rate is how much is incremented per frame. 
+// if rate = 1, then it takes 100 frames to reach 100% progress, or 8.33 seconds.
+
+// retrieve global variables  // COMMENT OUT FOR LOCAL TESTING
 chrome.storage.sync.get(['snoozerQuieted'], function (result) {
     quiet = result.snoozerQuieted;
     console.log('script.js snoozerQuieted retrieved as', quiet);
     turnquiet(quiet);  // set initial quiet button state
 });
+
+chrome.storage.sync.get(['snoozerSensitivity'], function (result) {
+    blinkThreshold = result.snoozerSensitivity * 0.04;
+    console.log('script.js snoozerSensitivity retrieved as', result.snoozerSensitivity);
+});
+
+chrome.storage.sync.get(['snoozerTimer'], function (result) {
+    rate = 100 / (result.snoozerTimer * framerate);
+    console.log('script.js snoozerTimer retrieved as', result.snoozerTimer);
+});
+
+
 
 // LOAD CONTENT
 document.addEventListener('DOMContentLoaded', async function () {
@@ -50,6 +59,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     quietbutton = document.getElementById("quietbutton");
     quietcolor = document.getElementById("quietcolor");
     const snoozetext = document.getElementById("snoozecount");
+
+    // SET INITIAL STATES FOR LOCAL TESTING
+    // quiet = false;
+    // turnquiet(quiet);
+
+    // blinkThreshold = 4 * 0.04;
+    // rate = 100 / (10 * framerate);  //takes ten seconds
 
     // CONFIGURE MODEL
     const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
@@ -260,7 +276,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     minimize.onclick = () => {
         console.log("minimize toggled");
-        window.parent.postMessage({ action: 'minimizetoggle' }, '*');  // send minimize to injector
+        window.parent.postMessage({ action: 'minimizetoggle' }, '*'); 
 
         if (minimized) {
             document.getElementById("logo").style.display = "block";
@@ -289,7 +305,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (!active) {
             active = true;
 
-            window.parent.postMessage({ action: 'reset' }, '*');  //send reset to injector
+            window.parent.postMessage({ action: 'reset' }, '*'); 
         }
     }
 

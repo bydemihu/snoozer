@@ -71,15 +71,11 @@
                 </div>
 
                 <div class="flexrow">
-                    <div class="barcontainer">
-                        <div class="bar"></div>
-                        <div id="timerbar" class="bar" style="background-color: rgb(119, 57, 255); width: 20%"></div>
-                        <div id="timerbarbutton" class="round"
-                            style="background-color: rgb(229, 196, 130); left: 18%; top: 32%; width: 24px; height: 24px; cursor: pointer">
-                        </div>
+                    <div class="slidecontainer" style="width:85%">
+                        <input type="range" min="5" max="30" value="10" class="slider" id="timerslider">
                     </div>
 
-                    <div class="header2" style="margin-left:24px;margin-right:6px;font-weight:700">
+                    <div class="header2" style="margin-left:24px;margin-right:6px;font-weight:700;width:15%;text-align:right;" id="timer">
                         10
                     </div>
                 </div>
@@ -94,16 +90,12 @@
                 </div>
 
                 <div class="flexrow">
-                    <div class="barcontainer">
-                        <div class="bar"></div>
-                        <div id="sensebar" class="bar" style="background-color: rgb(119, 57, 255); width: 50%"></div>
-                        <div id="sensebarbutton" class="round"
-                            style="background-color: rgb(229, 196, 130); left: 45%; top: 32%; width: 24px; height: 24px; cursor: pointer">
-                        </div>
+                    <div class="slidecontainer" style="width:85%">
+                        <input type="range" min="1" max="10" value="4" class="slider" id="sensitivityslider">
                     </div>
 
-                    <div class="header2" style="margin-left:24px;margin-right:6px;font-weight:700">
-                        12
+                    <div class="header2" style="margin-left:24px;margin-right:6px;font-weight:700;width:15%;text-align: right;" id="sensitivity">
+                        4
                     </div>
                 </div>
             </div>

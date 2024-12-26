@@ -18,32 +18,15 @@ chrome.tabs.onCreated.addListener(function (tab) {
         if (tabId === tab.id && changeInfo.status === 'complete') {
             sendMessageToTab(tabId, 'activateTab');
             console.log("sent activateTab on creation");
-
-            // chrome.scripting.executeScript({
-            //     target: { tabId: activeInfo.tabId },
-            //     files: ['inject.js']
-            // });
-            console.log("injected inject.js in new tab");
         }
     });
 });
 
-// tab activation
+// tab activation 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
-    // const activeTabId = activeInfo.tabId;
 
     sendMessageToTab(activeInfo.tabId, 'activateTab');
     console.log("sent activateTab on switch");
-
-    // add inject.js to the tab (instead of using content script)
-    // if(){
-    // chrome.scripting.executeScript({
-    //     target: { tabId: activeInfo.tabId },
-    //     files: ['inject.js']
-    // });
-
-    console.log("injected inject.js on existing tab");
-
 
     if (prevTabId != activeInfo.tabId) {
         try {
@@ -55,19 +38,8 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
         }
     }
 
+    // reassign prevTabId to contain current tab
     prevTabId = activeInfo.tabId;
-
-    // sendMessageToTab(activeTabId, 'activateTab');
-    // console.log("sent activateTab on switch");
-
-    // chrome.tabs.query({ windowId: activeInfo.windowId }, function(tabs) {
-    //     tabs.forEach(function(tab) {
-    //         if (tab.id !== activeTabId) {
-    //             sendMessageToTab(tab.id, 'deactivateTab');
-    //             console.log("hello deactivated tab")
-    //         }
-    //     });
-    // });
 });
 
 // tab updates
@@ -76,12 +48,5 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
 
         sendMessageToTab(tabId, 'activateTab');
         console.log("sent activateTab on reload");
-
-        // chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        //     if (tabs[0].id === tabId) {
-        //         sendMessageToTab(tabId, 'activateTab');
-        //         console.log("sent activateTab on reload");
-        //     }
-        // });
     }
 });

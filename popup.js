@@ -3,6 +3,12 @@
 console.log("popup.js entered");
 
 document.addEventListener('DOMContentLoaded', async function () {
+    // // also messages activeTab
+    // chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+    //     const activeTabId = tabs[0].id;
+    //     chrome.tabs.sendMessage(activeTabId, { action: 'activateTab' });
+    // });
+
     let enabled;
 
     // get global
@@ -38,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     // global state changer
-    // NOTHING ELSE NEEDED, injector.js has its own global state listener
+    // NOTHING ELSE NEEDED, inject.js has its own global state listener
     onbutton.onclick = () => {
         console.log("on toggled from popup", !enabled);
         chrome.storage.sync.set({ snoozerEnabled: !enabled });
@@ -49,12 +55,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         oncolor.style.backgroundColor = "rgb(119, 57, 255)";
         onbutton.style.left = "";
         onbutton.style.right = "0";
-
-        // // also messages activeTab
-        // chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-        //     const activeTabId = tabs[0].id;
-        //     chrome.tabs.sendMessage(activeTabId, { action: 'activateTab' });
-        // });
     }
 
     function turnoff() {

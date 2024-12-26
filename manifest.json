@@ -1,16 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Snoozer",
-  "description": "AI face-tracking productivity tool",
+  "description": "AI face-tracking productivity app",
   "version": "1.0",
   "permissions": [
     "activeTab",
     "tabs",
     "scripting",
     "storage"
-  ],
-  "host_permissions": [
-    "*://*/*"
   ],
   "content_scripts": [
     {

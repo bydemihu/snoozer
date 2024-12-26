@@ -1,4 +1,15 @@
-// this adds test.html snoozer interface to the webpage. it gets called by background.js!
+// INJECT.JS IS INJECTED INTO THE WEBPAGE AND ADDS SNOOZER.HTML
+// gets called by background.js
+// manages chrome storage variables (getter/setter)
+// manages snoozer position and state
+// communicates signals with snoozer
+
+// COLORS
+// let dark = color(47, 63, 91);
+// let medium = color(194, 210, 255);
+// let light = color(228, 236, 244);
+// let accent = color(119, 57, 255);
+// let gold = color(239, 201, 123);
 
 let iframecontainer;
 let iframe;
@@ -65,6 +76,28 @@ chrome.storage.sync.get(['snoozerPosition'], function (result) {
         console.log('snoozerPosition retrieved as', position);
     }
 });
+
+chrome.storage.sync.get(['snoozerSensitivity'], function (result) {
+    if (result.snoozerSensitivity === undefined) {
+        chrome.storage.sync.set({ snoozerSensitivity: 4 });
+        console.log('snoozerSensitivity initialized as 4');
+    }
+});
+
+chrome.storage.sync.get(['snoozerTimer'], function (result) {
+    if (result.snoozerTimer === undefined) {
+        chrome.storage.sync.set({ snoozerTimer: 10 });
+        console.log('snoozerTimer initialized as 10');
+    }
+});
+
+chrome.storage.session.get(['snoozeCount'], function (result) {
+    if (result.snoozeCount === undefined) {
+        chrome.storage.session.set({ snoozeCount: 0 });
+        console.log('snoozeCount initialized as 0');
+    }
+});
+
 
 function open() {
     iframecontainer = document.createElement('div');
@@ -136,7 +169,7 @@ function setDrag(elem) {
     }
 
     // retrieve position
-    chrome.storage.sync.get(['snoozerPosition'], function(result) {
+    chrome.storage.sync.get(['snoozerPosition'], function (result) {
         if (result.snoozerPosition) {
             elem.style.top = result.snoozerPosition.top;
             elem.style.left = result.snoozerPosition.left;
@@ -212,35 +245,35 @@ window.addEventListener('message', function (event) {
     // Ensure the message is coming from the expected origin
     //if (event.origin !== 'snoozer.html') return;
 
-    if (active && enabled){  // listener only works if active
+    if (active && enabled) {  // listener only works if active
 
-    if (event.data && event.data.action === 'jumpscare') {
-        console.log("jumpscare called from iframe");
-        jumpscare();
-    }
-
-    if (event.data && event.data.action === 'reset') {
-        console.log("reset called from iframe");
-        jump.remove();
-    }
-
-    if (event.data && event.data.action === 'quiettoggle') {
-        quiet = !quiet;
-    }
-
-    if (event.data && event.data.action === 'minimizetoggle') {
-
-        if (!minimized) {
-            iframe.style.height = "120px";
-            console.log("minimized iframe");
-        }
-        else {
-            iframe.style.height = "560px";
+        if (event.data && event.data.action === 'jumpscare') {
+            console.log("jumpscare called from iframe");
+            jumpscare();
         }
 
-        minimized = !minimized;
+        if (event.data && event.data.action === 'reset') {
+            console.log("reset called from iframe");
+            jump.remove();
+        }
+
+        if (event.data && event.data.action === 'quiettoggle') {
+            quiet = !quiet;
+        }
+
+        if (event.data && event.data.action === 'minimizetoggle') {
+
+            if (!minimized) {
+                iframe.style.height = "120px";
+                console.log("minimized iframe");
+            }
+            else {
+                iframe.style.height = "560px";
+            }
+
+            minimized = !minimized;
+        }
     }
-}
 
 });
 
@@ -258,18 +291,18 @@ chrome.storage.onChanged.addListener(function (changes, areaName) {
         }
         enabled = changes.snoozerEnabled.newValue;  // local enabled variable containing global value;
     }
-    
+
 
     // quiet
     if (changes.snoozerQuieted) {
-        quiet = changes.snoozerQuieted.newValue;
+        quiet = changes.snoozerQuieted.newValue;  // local variable quiet only tells inject whether to play sound
     }
 
 
 });
 
 // tab state listner
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log("received", request.action.toString(), "from background");
 
     if (request.action === "activateTab" && enabled) {
