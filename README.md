@@ -8,3 +8,7 @@ Rest your eyes for a few seconds too long, and receive a nasty jumpscare that'll
 
 ### But...why?
 Snoozer is a machine learning project that humorously addresses a plight that affects many students and employees, but simultaneously criticizes hustle culture and the toxicity of an environment that prioritizes productivity over health. Inspired by real-world digital surveillance tools used in schools and workplaces, Snoozer explores the trade-off between privacy and propriety. Despite seeming innocuous or even helpful for maintaining focus, it exacerbates the underlying issue of overworking to the point of exhaustion.
+
+### Installation
+Download the entire Snoozer reposository, then unzip the folder. Go to **chrome://extensions/** and click **load unpacked**. Select the unzipped Snoozer folder and boom! You're ready to start snoozing. Pin Snoozer 
+to easily toggle the interface on and off.
